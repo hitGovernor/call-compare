@@ -57,6 +57,17 @@
   </style>
 
   <script type="text/javascript">
+    window.dataLayer = window.dataLayer || [];
+    let tracker = {
+      // window.dataLayer = window.dataLayer || [];
+
+      push: function (event) {
+        console.log(event);
+        event.debug_mode = true;
+        dataLayer.push(event);
+      }
+    }
+
     var callCompare = {
       /**
        * compares one object against another, starting with left[key] vs right[key]
@@ -65,10 +76,19 @@
        * @returns {object}
        */
       compare: function (left, right) {
-        var result = {};
+        let result = {};
+        let counts = {
+          total: 0,
+          exact: 0,
+          exists: 0,
+          left_only: 0,
+          right_only: 0
+        };
 
         // start comparison with left object as source of truth
         for (var key in left) {
+          counts.total++;
+
           // don't look at keys with no name
           if (key !== "") {
             result[key] = {
@@ -79,20 +99,25 @@
             if (right.hasOwnProperty(key)) {
               if (left[key] === right[key]) { // are the values the same?
                 result[key].result = "exact";
+                counts.exact++;
               } else {
                 result[key].result = "exists"; // do both objects have the key, but different values?
+                counts.exists++;
               }
 
               // remove from right key since we've already done the comparison
               delete right[key];
             } else {
               result[key].result = "left-only"; // we've checked, the key is left only
+              counts.left_only++;
             }
           }
         }
 
         // anything left in the right object is right-only
         for (var key in right) {
+          counts.total++;
+
           if (key !== "") {
             if (!result.hasOwnProperty[key]) {
               result[key] = {
@@ -100,11 +125,18 @@
                 rightVal: right[key],
                 result: "right-only"
               }
+              counts.right_only++;
             }
           }
         }
 
         // return the result object with all findings
+        tracker.push({
+          event: 'compare',
+          eventDetails: {
+            counts: counts
+          }
+        });
         return result;
       },
 
@@ -172,11 +204,11 @@
 
     var pageActions = {
       buildTable: function (items) {
-        gtag('event', 'build-results-table', {
-          event_category: 'results',
-          event_label: 'number-of-records',
-          value: items.length
-        });
+        // gtag('event', 'build-results-table', {
+        //   event_category: 'results',
+        //   event_label: 'number-of-records',
+        //   value: items.length
+        // });
 
         // create table
         var tbl = document.createElement('table');
@@ -270,11 +302,11 @@
           isDownload = (downloadCheckbox.checked) ? true : false;
 
         if (isDownload) {
-          gtag('event', 'downloading-csv', {
-            event_category: '',
-            event_label: '',
-            value: 1
-          });
+          // gtag('event', 'downloading-csv', {
+          //   event_category: '',
+          //   event_label: '',
+          //   value: 1
+          // });
 
           var hiddenElement = document.createElement('a');
           hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
@@ -286,11 +318,11 @@
       },
 
       formSubmit: function () {
-        gtag('event', 'form-submit', {
-          event_category: 'forms',
-          event_label: 'call-compare',
-          value: 1
-        });
+        // gtag('event', 'form-submit', {
+        //   event_category: 'forms',
+        //   event_label: 'call-compare',
+        //   value: 1
+        // });
 
         var ctl = document.getElementById('left-calls').value,
           chl = document.getElementById('right-calls').value;
@@ -350,10 +382,10 @@
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WB28SLN5" height="0" width="0"
       style="display:none;visibility:hidden"></iframe></noscript>
   <!-- End Google Tag Manager (noscript) -->
-   
+
   <br>
 
-  <form id='compare-form' onsubmit="pageActions.formSubmit()">
+  <form id='compare-form' onsubmit="javascript:pageActions.formSubmit()">
     <table id='form-wrapper'>
       <tr>
         <td>
