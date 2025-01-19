@@ -10,7 +10,7 @@
       w[l] = w[l] || []; w[l].push({
         'gtm.start':
           new Date().getTime(), event: 'gtm.js'
-      }); let f = d.getElementsByTagName(s)[0],
+      }); var f = d.getElementsByTagName(s)[0],
         j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
           'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
     })(window, document, 'script', 'dataLayer', 'GTM-WB28SLN5');</script>
@@ -57,8 +57,8 @@
   </style>
 
   <script type="text/javascript">
-    var tracker = {
-      push: function(event) {
+    let tracker = {
+      push: function (event) {
         console.log(event);
       }
     }
@@ -81,7 +81,7 @@
         };
 
         // start comparison with left object as source of truth
-        for (let key in left) {
+        for (var key in left) {
           counts.total++;
 
           // don't look at keys with no name
@@ -97,7 +97,7 @@
                 counts.exact++;
               } else {
                 result[key].result = "exists"; // do both objects have the key, but different values?
-                counts.exists++; 
+                counts.exists++;
               }
 
               // remove from right key since we've already done the comparison
@@ -110,8 +110,9 @@
         }
 
         // anything left in the right object is right-only
-        for (let key in right) {
+        for (var key in right) {
           counts.total++;
+
           if (key !== "") {
             if (!result.hasOwnProperty[key]) {
               result[key] = {
@@ -130,7 +131,7 @@
           eventDetails: {
             counts: counts
           }
-        })
+        });
         return result;
       },
 
@@ -140,12 +141,12 @@
        * @returns {object}
        */
       parseIt: function (url) {
-        let retval = {},
+        var retval = {},
           urlSegment = url.split("?"),
           httpInfo = urlSegment[0].split("/");
 
         // account for protocol, hostname, and path info
-        for (let i = 0, max = httpInfo.length; i < max; i++) {
+        for (var i = 0, max = httpInfo.length; i < max; i++) {
           if (httpInfo[i] !== "") {
             retval["http" + i] = httpInfo[i];
           }
@@ -161,12 +162,12 @@
 
         // parse all parameters
         if (urlSegment.length > 1) {
-          for (let i = 0, max = urlSegment[1].length; i < max; i++) {
-            let separator = "&";
-            let params = urlSegment[1].split(separator);
+          for (var i = 0, max = urlSegment[1].length; i < max; i++) {
+            var separator = "&";
+            var params = urlSegment[1].split(separator);
 
-            for (let i = 0, max = params.length; i < max; i++) {
-              let tmp = params[i].split("=");
+            for (var i = 0, max = params.length; i < max; i++) {
+              var tmp = params[i].split("=");
               retval[tmp[0]] = decodeURIComponent(tmp[1]);
             }
           }
@@ -177,8 +178,8 @@
       },
 
       mergeLeftRight: function (aryLeft, aryRight) {
-        let retval = [];
-        for (let i = 0, max = aryLeft.length; i < max; i++) {
+        var retval = [];
+        for (var i = 0, max = aryLeft.length; i < max; i++) {
           if (aryLeft[i] !== "" && aryLeft[i] !== "n/a") {
 
             // clean up trailing characters
@@ -205,32 +206,32 @@
         });
 
         // create table
-        let tbl = document.createElement('table');
+        var tbl = document.createElement('table');
         tbl.className = 'results';
         tbl.setAttribute('style', 'table-layout:fixed; width: 100%');
         tbl.setAttribute('id', 'result-table');
 
-        for (let i = 0, max = items.length; i < max; i++) {
+        for (var i = 0, max = items.length; i < max; i++) {
           // build header row
-          let tr = document.createElement('tr');
+          var tr = document.createElement('tr');
           tr.classList = 'table-head';
 
-          let th = document.createElement('th');
+          var th = document.createElement('th');
           th.innerHTML = "Param";
           th.setAttribute('style', 'table-layout:fixed; width: 7%');
           tr.appendChild(th);
 
-          let th = document.createElement('th');
+          var th = document.createElement('th');
           th.innerHTML = "Left";
           th.setAttribute('style', 'table-layout:fixed; width: 43%');
           tr.appendChild(th);
 
-          let th = document.createElement('th');
+          var th = document.createElement('th');
           th.innerHTML = "Right";
           th.setAttribute('style', 'table-layout:fixed; width: 43%');
           tr.appendChild(th);
 
-          let th = document.createElement('th');
+          var th = document.createElement('th');
           th.innerHTML = "Match";
           th.setAttribute('style', 'table-layout:fixed; width: 7%');
           tr.appendChild(th);
@@ -238,24 +239,24 @@
           tbl.appendChild(tr);
 
           // build result rows
-          for (let key in items[i]) {
-            let tr = document.createElement('tr');
+          for (var key in items[i]) {
+            var tr = document.createElement('tr');
             tr.id = 'cr-' + i + '-' + key;
             tr.className = items[i][key].result;
 
-            let td_key = document.createElement('td');
+            var td_key = document.createElement('td');
             td_key.innerHTML = key;
             tr.appendChild(td_key);
 
-            let td_left = document.createElement('td');
+            var td_left = document.createElement('td');
             td_left.innerHTML = (items[i][key].leftVal) ? items[i][key].leftVal : "";
             tr.appendChild(td_left);
 
-            let td_right = document.createElement('td');
+            var td_right = document.createElement('td');
             td_right.innerHTML = (items[i][key].rightVal) ? items[i][key].rightVal : "";
             tr.appendChild(td_right);
 
-            let td_result = document.createElement('td');
+            var td_result = document.createElement('td');
             td_result.innerHTML = items[i][key].result;
             tr.appendChild(td_result);
 
@@ -263,7 +264,7 @@
           }
         }
 
-        let res = document.getElementById('results');
+        var res = document.getElementById('results');
         res.innerHTML = "";
         res.appendChild(tbl);
         res.appendChild(document.createElement('hr'));
@@ -271,11 +272,11 @@
       },
 
       buildCSV: function (data) {
-        let csv = ['compare_id,parameter_name,left_value,right_value,match_type'];
-        for (let i = 0, max = data.length; i < max; i++) {
-          let tmp = [];
-          for (let key in data[i]) {
-            let row = [i];
+        var csv = ['compare_id,parameter_name,left_value,right_value,match_type'];
+        for (var i = 0, max = data.length; i < max; i++) {
+          var tmp = [];
+          for (var key in data[i]) {
+            var row = [i];
             row.push(key);
             row.push(data[i][key].leftVal);
             row.push(data[i][key].rightVal);
@@ -292,7 +293,7 @@
 
       downloadCSV: function (csv) {
         // csv download logic
-        let downloadCheckbox = document.getElementById('download'),
+        var downloadCheckbox = document.getElementById('download'),
           isDownload = (downloadCheckbox.checked) ? true : false;
 
         if (isDownload) {
@@ -302,7 +303,7 @@
             value: 1
           });
 
-          let hiddenElement = document.createElement('a');
+          var hiddenElement = document.createElement('a');
           hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
           hiddenElement.target = '_blank';
           hiddenElement.download = 'call_compare.csv';
@@ -318,22 +319,22 @@
           value: 1
         });
 
-        let ctl = document.getElementById('left-calls').value,
+        var ctl = document.getElementById('left-calls').value,
           chl = document.getElementById('right-calls').value;
 
         chl = (chl.length > 0) ? chl : ctl;
 
-        let aryLeft = ctl.split('\n'),
+        var aryLeft = ctl.split('\n'),
           aryRight = chl.split('\n');
 
-        let tests = callCompare.mergeLeftRight(aryLeft, aryRight);
+        var tests = callCompare.mergeLeftRight(aryLeft, aryRight);
 
-        let output = [];
-        for (let i = 0, max = tests.length; i < max; i++) {
-          let left = callCompare.parseIt(tests[i].left),
+        var output = [];
+        for (var i = 0, max = tests.length; i < max; i++) {
+          var left = callCompare.parseIt(tests[i].left),
             right = (tests[i].right) ? callCompare.parseIt(tests[i].right) : {};
 
-          let result = callCompare.compare(left, right);
+          var result = callCompare.compare(left, right);
           output.push(result);
         }
 
@@ -341,9 +342,9 @@
         window.csv = this.buildCSV(output);
         this.downloadCSV(window.csv);
 
-        // let results = compare.exec(ctl, chl, incl_excl_params, paramFilter);
-        let checkboxes = document.querySelectorAll("table.legend input[type='checkbox']");
-        for (let i = 0, maxi = checkboxes.length; i < maxi; i++) {
+        // var results = compare.exec(ctl, chl, incl_excl_params, paramFilter);
+        var checkboxes = document.querySelectorAll("table.legend input[type='checkbox']");
+        for (var i = 0, maxi = checkboxes.length; i < maxi; i++) {
           checkboxes[i].checked = true;
         }
       },
@@ -356,8 +357,8 @@
         value: 1
       });
 
-      let elementToHide = document.querySelectorAll("table.results tr." + classname);
-      for (let i = 0; i < elementToHide.length; i++) {
+      var elementToHide = document.querySelectorAll("table.results tr." + classname);
+      for (var i = 0; i < elementToHide.length; i++) {
         if (obj && !obj.checked) {
           elementToHide[i].style.visibility = "hidden"; // or
           elementToHide[i].style.display = "none"; // depending on what you're doing
@@ -376,7 +377,7 @@
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WB28SLN5" height="0" width="0"
       style="display:none;visibility:hidden"></iframe></noscript>
   <!-- End Google Tag Manager (noscript) -->
-   
+
   <br>
 
   <form id='compare-form' onsubmit="pageActions.formSubmit()">
