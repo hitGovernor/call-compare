@@ -10,7 +10,7 @@
       w[l] = w[l] || []; w[l].push({
         'gtm.start':
           new Date().getTime(), event: 'gtm.js'
-      }); var f = d.getElementsByTagName(s)[0],
+      }); let f = d.getElementsByTagName(s)[0],
         j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
           'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
     })(window, document, 'script', 'dataLayer', 'GTM-WB28SLN5');</script>
@@ -57,7 +57,13 @@
   </style>
 
   <script type="text/javascript">
-    var callCompare = {
+    let tracker = {
+      push: function(event) {
+        console.log(event);
+      }
+    }
+
+    let callCompare = {
       /**
        * compares one object against another, starting with left[key] vs right[key]
        * @param left {object}
@@ -65,10 +71,19 @@
        * @returns {object}
        */
       compare: function (left, right) {
-        var result = {};
+        let result = {};
+        let counts = {
+          total: 0,
+          exact: 0,
+          exists: 0,
+          left_only: 0,
+          right_only: 0
+        };
 
         // start comparison with left object as source of truth
-        for (var key in left) {
+        for (let key in left) {
+          counts.total++;
+
           // don't look at keys with no name
           if (key !== "") {
             result[key] = {
@@ -79,20 +94,24 @@
             if (right.hasOwnProperty(key)) {
               if (left[key] === right[key]) { // are the values the same?
                 result[key].result = "exact";
+                counts.exact++;
               } else {
                 result[key].result = "exists"; // do both objects have the key, but different values?
+                counts.exists++; 
               }
 
               // remove from right key since we've already done the comparison
               delete right[key];
             } else {
               result[key].result = "left-only"; // we've checked, the key is left only
+              counts.left_only++;
             }
           }
         }
 
         // anything left in the right object is right-only
-        for (var key in right) {
+        for (let key in right) {
+          counts.total++;
           if (key !== "") {
             if (!result.hasOwnProperty[key]) {
               result[key] = {
@@ -100,11 +119,18 @@
                 rightVal: right[key],
                 result: "right-only"
               }
+              counts.right_only++;
             }
           }
         }
 
         // return the result object with all findings
+        tracker.push({
+          event: 'compare',
+          eventDetails: {
+            counts: counts
+          }
+        })
         return result;
       },
 
@@ -114,12 +140,12 @@
        * @returns {object}
        */
       parseIt: function (url) {
-        var retval = {},
+        let retval = {},
           urlSegment = url.split("?"),
           httpInfo = urlSegment[0].split("/");
 
         // account for protocol, hostname, and path info
-        for (var i = 0, max = httpInfo.length; i < max; i++) {
+        for (let i = 0, max = httpInfo.length; i < max; i++) {
           if (httpInfo[i] !== "") {
             retval["http" + i] = httpInfo[i];
           }
@@ -135,12 +161,12 @@
 
         // parse all parameters
         if (urlSegment.length > 1) {
-          for (var i = 0, max = urlSegment[1].length; i < max; i++) {
-            var separator = "&";
-            var params = urlSegment[1].split(separator);
+          for (let i = 0, max = urlSegment[1].length; i < max; i++) {
+            let separator = "&";
+            let params = urlSegment[1].split(separator);
 
-            for (var i = 0, max = params.length; i < max; i++) {
-              var tmp = params[i].split("=");
+            for (let i = 0, max = params.length; i < max; i++) {
+              let tmp = params[i].split("=");
               retval[tmp[0]] = decodeURIComponent(tmp[1]);
             }
           }
@@ -151,8 +177,8 @@
       },
 
       mergeLeftRight: function (aryLeft, aryRight) {
-        var retval = [];
-        for (var i = 0, max = aryLeft.length; i < max; i++) {
+        let retval = [];
+        for (let i = 0, max = aryLeft.length; i < max; i++) {
           if (aryLeft[i] !== "" && aryLeft[i] !== "n/a") {
 
             // clean up trailing characters
@@ -170,7 +196,7 @@
       }
     }
 
-    var pageActions = {
+    let pageActions = {
       buildTable: function (items) {
         gtag('event', 'build-results-table', {
           event_category: 'results',
@@ -179,32 +205,32 @@
         });
 
         // create table
-        var tbl = document.createElement('table');
+        let tbl = document.createElement('table');
         tbl.className = 'results';
         tbl.setAttribute('style', 'table-layout:fixed; width: 100%');
         tbl.setAttribute('id', 'result-table');
 
-        for (var i = 0, max = items.length; i < max; i++) {
+        for (let i = 0, max = items.length; i < max; i++) {
           // build header row
-          var tr = document.createElement('tr');
+          let tr = document.createElement('tr');
           tr.classList = 'table-head';
 
-          var th = document.createElement('th');
+          let th = document.createElement('th');
           th.innerHTML = "Param";
           th.setAttribute('style', 'table-layout:fixed; width: 7%');
           tr.appendChild(th);
 
-          var th = document.createElement('th');
+          let th = document.createElement('th');
           th.innerHTML = "Left";
           th.setAttribute('style', 'table-layout:fixed; width: 43%');
           tr.appendChild(th);
 
-          var th = document.createElement('th');
+          let th = document.createElement('th');
           th.innerHTML = "Right";
           th.setAttribute('style', 'table-layout:fixed; width: 43%');
           tr.appendChild(th);
 
-          var th = document.createElement('th');
+          let th = document.createElement('th');
           th.innerHTML = "Match";
           th.setAttribute('style', 'table-layout:fixed; width: 7%');
           tr.appendChild(th);
@@ -212,24 +238,24 @@
           tbl.appendChild(tr);
 
           // build result rows
-          for (var key in items[i]) {
-            var tr = document.createElement('tr');
+          for (let key in items[i]) {
+            let tr = document.createElement('tr');
             tr.id = 'cr-' + i + '-' + key;
             tr.className = items[i][key].result;
 
-            var td_key = document.createElement('td');
+            let td_key = document.createElement('td');
             td_key.innerHTML = key;
             tr.appendChild(td_key);
 
-            var td_left = document.createElement('td');
+            let td_left = document.createElement('td');
             td_left.innerHTML = (items[i][key].leftVal) ? items[i][key].leftVal : "";
             tr.appendChild(td_left);
 
-            var td_right = document.createElement('td');
+            let td_right = document.createElement('td');
             td_right.innerHTML = (items[i][key].rightVal) ? items[i][key].rightVal : "";
             tr.appendChild(td_right);
 
-            var td_result = document.createElement('td');
+            let td_result = document.createElement('td');
             td_result.innerHTML = items[i][key].result;
             tr.appendChild(td_result);
 
@@ -237,7 +263,7 @@
           }
         }
 
-        var res = document.getElementById('results');
+        let res = document.getElementById('results');
         res.innerHTML = "";
         res.appendChild(tbl);
         res.appendChild(document.createElement('hr'));
@@ -245,11 +271,11 @@
       },
 
       buildCSV: function (data) {
-        var csv = ['compare_id,parameter_name,left_value,right_value,match_type'];
-        for (var i = 0, max = data.length; i < max; i++) {
-          var tmp = [];
-          for (var key in data[i]) {
-            var row = [i];
+        let csv = ['compare_id,parameter_name,left_value,right_value,match_type'];
+        for (let i = 0, max = data.length; i < max; i++) {
+          let tmp = [];
+          for (let key in data[i]) {
+            let row = [i];
             row.push(key);
             row.push(data[i][key].leftVal);
             row.push(data[i][key].rightVal);
@@ -266,7 +292,7 @@
 
       downloadCSV: function (csv) {
         // csv download logic
-        var downloadCheckbox = document.getElementById('download'),
+        let downloadCheckbox = document.getElementById('download'),
           isDownload = (downloadCheckbox.checked) ? true : false;
 
         if (isDownload) {
@@ -276,7 +302,7 @@
             value: 1
           });
 
-          var hiddenElement = document.createElement('a');
+          let hiddenElement = document.createElement('a');
           hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
           hiddenElement.target = '_blank';
           hiddenElement.download = 'call_compare.csv';
@@ -292,22 +318,22 @@
           value: 1
         });
 
-        var ctl = document.getElementById('left-calls').value,
+        let ctl = document.getElementById('left-calls').value,
           chl = document.getElementById('right-calls').value;
 
         chl = (chl.length > 0) ? chl : ctl;
 
-        var aryLeft = ctl.split('\n'),
+        let aryLeft = ctl.split('\n'),
           aryRight = chl.split('\n');
 
-        var tests = callCompare.mergeLeftRight(aryLeft, aryRight);
+        let tests = callCompare.mergeLeftRight(aryLeft, aryRight);
 
-        var output = [];
-        for (var i = 0, max = tests.length; i < max; i++) {
-          var left = callCompare.parseIt(tests[i].left),
+        let output = [];
+        for (let i = 0, max = tests.length; i < max; i++) {
+          let left = callCompare.parseIt(tests[i].left),
             right = (tests[i].right) ? callCompare.parseIt(tests[i].right) : {};
 
-          var result = callCompare.compare(left, right);
+          let result = callCompare.compare(left, right);
           output.push(result);
         }
 
@@ -315,9 +341,9 @@
         window.csv = this.buildCSV(output);
         this.downloadCSV(window.csv);
 
-        // var results = compare.exec(ctl, chl, incl_excl_params, paramFilter);
-        var checkboxes = document.querySelectorAll("table.legend input[type='checkbox']");
-        for (var i = 0, maxi = checkboxes.length; i < maxi; i++) {
+        // let results = compare.exec(ctl, chl, incl_excl_params, paramFilter);
+        let checkboxes = document.querySelectorAll("table.legend input[type='checkbox']");
+        for (let i = 0, maxi = checkboxes.length; i < maxi; i++) {
           checkboxes[i].checked = true;
         }
       },
@@ -330,8 +356,8 @@
         value: 1
       });
 
-      var elementToHide = document.querySelectorAll("table.results tr." + classname);
-      for (var i = 0; i < elementToHide.length; i++) {
+      let elementToHide = document.querySelectorAll("table.results tr." + classname);
+      for (let i = 0; i < elementToHide.length; i++) {
         if (obj && !obj.checked) {
           elementToHide[i].style.visibility = "hidden"; // or
           elementToHide[i].style.display = "none"; // depending on what you're doing
