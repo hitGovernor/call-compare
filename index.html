@@ -57,13 +57,13 @@
   </style>
 
   <script type="text/javascript">
-    let tracker = {
+    var tracker = {
       push: function(event) {
         console.log(event);
       }
     }
 
-    let callCompare = {
+    var callCompare = {
       /**
        * compares one object against another, starting with left[key] vs right[key]
        * @param left {object}
@@ -196,7 +196,7 @@
       }
     }
 
-    let pageActions = {
+    var pageActions = {
       buildTable: function (items) {
         gtag('event', 'build-results-table', {
           event_category: 'results',
