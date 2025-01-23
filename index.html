@@ -59,11 +59,8 @@
   <script type="text/javascript">
     window.dataLayer = window.dataLayer || [];
     let tracker = {
-      // window.dataLayer = window.dataLayer || [];
-
       push: function (event) {
         console.log(event);
-        // event.debug_mode = true;
         dataLayer.push(event);
       }
     }
@@ -130,12 +127,14 @@
           }
         }
 
-        // return the result object with all findings
+        // track coparison and return the result object with all findings
         tracker.push({
           event: 'compare',
-          eventDetails: {
-            counts: counts
-          }
+          compare_count_total: counts.total,
+          compare_count_exact: counts.exact,
+          compare_count_exists: counts.exists,
+          compare_count_left_only: counts.left_only,
+          compare_count_right_only: counts.right_only
         });
         return result;
       },
@@ -203,13 +202,8 @@
     }
 
     var pageActions = {
+      FORMNAME: 'call-compare',
       buildTable: function (items) {
-        // gtag('event', 'build-results-table', {
-        //   event_category: 'results',
-        //   event_label: 'number-of-records',
-        //   value: items.length
-        // });
-
         // create table
         var tbl = document.createElement('table');
         tbl.className = 'results';
@@ -302,11 +296,10 @@
           isDownload = (downloadCheckbox.checked) ? true : false;
 
         if (isDownload) {
-          // gtag('event', 'downloading-csv', {
-          //   event_category: '',
-          //   event_label: '',
-          //   value: 1
-          // });
+          tracker.push({
+            event: 'download-csv',
+            form_name: pageActions.FORMNAME
+          });
 
           var hiddenElement = document.createElement('a');
           hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
@@ -317,12 +310,22 @@
         }
       },
 
+      formReset: function () {
+        tracker.push({
+          event: 'form-reset',
+          form_name: pageActions.FORMNAME
+        });
+
+        document.getElementById('left-calls').value = '';
+        document.getElementById('right-calls').value = '';
+        document.getElementById('results').innerHTML = '';
+      },
+
       formSubmit: function () {
-        // gtag('event', 'form-submit', {
-        //   event_category: 'forms',
-        //   event_label: 'call-compare',
-        //   value: 1
-        // });
+        tracker.push({
+          event: 'form-submit',
+          form_name: pageActions.FORMNAME
+        });
 
         var ctl = document.getElementById('left-calls').value,
           chl = document.getElementById('right-calls').value;
@@ -356,10 +359,9 @@
     }
 
     function showHide(classname, obj) {
-      gtag('event', 'toggle-visibility', {
-        event_category: classname,
-        event_label: (obj.checked) ? 'make-visible' : 'make-not-visible',
-        value: 1
+      tracker.push({
+        event: (obj.checked) ? 'legend-show' : 'legend-hide',
+        legend_category: classname
       });
 
       var elementToHide = document.querySelectorAll("table.results tr." + classname);
@@ -438,7 +440,8 @@
           <input type='button' id='form-submit' value='Submit' onclick="javascript:pageActions.formSubmit();"
             title="Form Submit Button">
           &nbsp;&nbsp;
-          <input type="reset" value='Reset Form' title="Form Reset Button">
+          <input type="reset" value='Reset Form' title="Form Reset Button"
+            onclick="javascript:pageActions.formReset();">
 
         </td>
       </tr>
