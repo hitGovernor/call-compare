@@ -54,6 +54,16 @@
     table.results tr:nth-child(odd) {
       border: 1px solid black;
     }
+
+    .link-style {
+      color: blue;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .link-style:hover {
+      color: darkblue;
+    }
   </style>
 
   <script type="text/javascript">
@@ -452,7 +462,7 @@
       <tr valign='top'>
         <td>
           <!-- <a href="call-compare_old.html" title="Go back to old call compare tool" alt="Go back to old call compare tool">Go back to old call compare tool</a> -->
-          <a title="Compare sample URLs" alt="Compare sample URLs"
+          <a title="Compare Sample URLs" alt="Compare Sample URLs" class="link-style"
             onclick="javascript:pageActions.compareSamples();">Compare Sample URLs</a>
         </td>
         <td align='right'>
