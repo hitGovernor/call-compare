@@ -385,17 +385,22 @@
       style="display:none;visibility:hidden"></iframe></noscript>
   <!-- End Google Tag Manager (noscript) -->
 
+  <strong>Analytics Call Comparison Tool</strong>
   <br>
+  <small>
+    Enter one or more URLs in the left text box and an equal number in the right text box.
+    Submit for comparison results.
+  </small>
 
   <form id='compare-form' onsubmit="javascript:pageActions.formSubmit()">
     <table id='form-wrapper'>
       <tr>
         <td>
           Left &#8680;<br>
-          <textarea cols='40' rows='8' id='left-calls'></textarea>
+          <textarea cols='40' rows='8' id='left-calls' placeholder="Example: https://www.example.com/path/file.html?cb=12345678"></textarea>
         </td>
         <td>Right &#8680;<br>
-          <textarea cols='40' rows='8' id='right-calls'></textarea>
+          <textarea cols='40' rows='8' id='right-calls'placeholder="Example: https://www.example.com/path/file.html?cb=87654321"></textarea>
         </td>
         <td>
           <table class='legend'>
