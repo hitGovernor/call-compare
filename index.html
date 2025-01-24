@@ -203,6 +203,18 @@
 
     var pageActions = {
       FORMNAME: 'call-compare',
+
+      compareSamples: function () {
+        document.getElementById("left-calls").value = document.getElementById("left-calls").getAttribute("placeholder");
+        document.getElementById("right-calls").value = document.getElementById("right-calls").getAttribute("placeholder");
+
+        tracker.push({
+          event: 'compare-samples',
+          form_name: pageActions.FORMNAME
+        });
+        pageActions.formSubmit();
+      },
+
       buildTable: function (items) {
         // create table
         var tbl = document.createElement('table');
@@ -397,10 +409,12 @@
       <tr>
         <td>
           Left &#8680;<br>
-          <textarea cols='40' rows='8' id='left-calls' placeholder="Example: https://www.example.com/path/file.html?cb=12345678&account=abc123&prod=pro&event=subscribe"></textarea>
+          <textarea cols='40' rows='8' id='left-calls'
+            placeholder="https://www.example.com/path/file.html?cb=12345678&account=abc123&prod=pro&event=subscribe"></textarea>
         </td>
         <td>Right &#8680;<br>
-          <textarea cols='40' rows='8' id='right-calls'placeholder="Example: https://www.example.com/path/file.html?cb=87654321&account=abc123&event=subscribe&region=emea"></textarea>
+          <textarea cols='40' rows='8' id='right-calls'
+            placeholder="https://www.example.com/path/file.html?cb=87654321&account=abc123&event=subscribe&region=emea"></textarea>
         </td>
         <td>
           <table class='legend'>
@@ -438,6 +452,8 @@
       <tr valign='top'>
         <td>
           <!-- <a href="call-compare_old.html" title="Go back to old call compare tool" alt="Go back to old call compare tool">Go back to old call compare tool</a> -->
+          <a title="Compare sample URLs" alt="Compare sample URLs"
+            onclick="javascript:pageActions.compareSamples();">Compare Sample URLs</a>
         </td>
         <td align='right'>
           Download Results (csv):&nbsp;
