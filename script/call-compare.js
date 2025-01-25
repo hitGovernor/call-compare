@@ -6,10 +6,19 @@ var callCompare = {
    * @returns {object}
    */
   compare: function (left, right) {
-    var result = {};
+    let result = {};
+    let counts = {
+      total: 0,
+      exact: 0,
+      exists: 0,
+      left_only: 0,
+      right_only: 0
+    };
 
     // start comparison with left object as source of truth
     for (var key in left) {
+      counts.total++;
+
       // don't look at keys with no name
       if (key !== "") {
         result[key] = {
@@ -20,20 +29,25 @@ var callCompare = {
         if (right.hasOwnProperty(key)) {
           if (left[key] === right[key]) { // are the values the same?
             result[key].result = "exact";
+            counts.exact++;
           } else {
             result[key].result = "exists"; // do both objects have the key, but different values?
+            counts.exists++;
           }
 
           // remove from right key since we've already done the comparison
           delete right[key];
         } else {
           result[key].result = "left-only"; // we've checked, the key is left only
+          counts.left_only++;
         }
       }
     }
 
     // anything left in the right object is right-only
     for (var key in right) {
+      counts.total++;
+
       if (key !== "") {
         if (!result.hasOwnProperty[key]) {
           result[key] = {
@@ -41,11 +55,20 @@ var callCompare = {
             rightVal: right[key],
             result: "right-only"
           }
+          counts.right_only++;
         }
       }
     }
 
-    // return the result object with all findings
+    // track coparison and return the result object with all findings
+    tracker.push({
+      event: 'compare',
+      compare_count_total: counts.total,
+      compare_count_exact: counts.exact,
+      compare_count_exists: counts.exists,
+      compare_count_left_only: counts.left_only,
+      compare_count_right_only: counts.right_only
+    });
     return result;
   },
 
@@ -68,7 +91,7 @@ var callCompare = {
 
     // if no params after "?", assume all ";" delimiters (ie// DCM, Google Ads)
     if (urlSegment.length === 1) {
-      if(urlSegment[0].indexOf(";") > -1) {
+      if (urlSegment[0].indexOf(";") > -1) {
         urlSegment[1] = httpInfo[httpInfo.length - 1].replace(/;/g, "&");
         delete retval["http" + (httpInfo.length - 1)];
       }
@@ -94,50 +117,19 @@ var callCompare = {
   mergeLeftRight: function (aryLeft, aryRight) {
     var retval = [];
     for (var i = 0, max = aryLeft.length; i < max; i++) {
+      if (aryLeft[i] !== "" && aryLeft[i] !== "n/a") {
 
-      // clean up trailing characters
-      aryLeft[i] = aryLeft[i].replace(/[\/\?]$/, "");
-      aryRight[i] = aryRight[i].replace(/[\/\?]$/, "");
+        // clean up trailing characters
+        aryLeft[i] = aryLeft[i].replace(/[\/\?]$/, "");
+        aryRight[i] = aryRight[i].replace(/[\/\?]$/, "");
 
-      retval.push({
-        left: aryLeft[i],
-        right: aryRight[i]
-      });
+        retval.push({
+          left: aryLeft[i],
+          right: aryRight[i]
+        });
+      }
     }
 
     return retval;
   }
-}
-
-
-var tests = [];
-tests.push({
-  left: "https://www.example.com/something?a=b&c=d&e=f",
-  right: "https://www.example.com/something?a=b&c=e"
-});
-tests.push({
-  left: "https://www.example.com/something?a=b&c=d",
-  right: "https://www.example.com/something?a=b&c=e&x=y"
-});
-tests.push({
-  left: "https://www.example.com/something?a=b&c=d&y=z",
-  right: "https://www.example.com/something?a=b&c=e&x=y"
-});
-tests.push({
-  left: "https://ad.doubleclick.net/ddm/activity/src=xxxxx1984865;type=abc123;cat=evocom00;u93=[CS]v1aaa111bbb222ccc333-zzz999yyy888xxx777[CE];u94=11111111222222223333333344444444;dc_rdid=%20;ord=1;num=920837467;u38=fb.1.1234567879741.987654321",
-  right: "https://ad.doubleclick.net/ddm/activity/src=aaaaa1984865;type=abc123;cat=evocom00;u93=[CS]v1aaa111bbb222ccc333-zzz999yyy888xxx777[CE];u94=11111111222222223333333344444444;dc_rdid=%20;ord=1;num=920837467;u38=fb.1.1234567879741.987654321"
-});
-tests.push({
-  left: "https://www.example.com/something/a",
-  right: "https://www.example.com/something"
-});
-
-var output = [];
-for (var i = 0, max = tests.length; i < max; i++) {
-  var left = callCompare.parseIt(tests[i].left),
-    right = callCompare.parseIt(tests[i].right);
-
-  var result = callCompare.compare(left, right);
-  console.table(result);
-  output.push(result);
 }
