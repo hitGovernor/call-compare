@@ -2,8 +2,13 @@ var pageActions = {
   FORMNAME: 'call-compare',
 
   compareSamples: function () {
-    document.getElementById("left-calls").value = document.getElementById("left-calls").getAttribute("placeholder");
-    document.getElementById("right-calls").value = document.getElementById("right-calls").getAttribute("placeholder");
+    let sampleUrls = {
+      "left": "https://www.example.com/path/file.html?cb=12345678&account=abc123&prod=pro&event=subscribe",
+      "right": "https://www.example.com/path/file.html?cb=87654321&account=abc123&event=subscribe&region=emea"
+    };
+
+    document.getElementById("left-calls").value = sampleUrls.left;
+    document.getElementById("right-calls").value = sampleUrls.right;
 
     tracker.push({
       event: 'compare-samples',
