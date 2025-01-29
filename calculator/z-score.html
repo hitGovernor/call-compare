@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Analytics Call Comparison Tool</title>
+  <link rel="stylesheet" href="/style/style.css">
+
+  <!-- Google Tag Manager -->
+  <script>(function (w, d, s, l, i) {
+      w[l] = w[l] || []; w[l].push({
+        'gtm.start':
+          new Date().getTime(), event: 'gtm.js'
+      }); var f = d.getElementsByTagName(s)[0],
+        j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+          'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+    })(window, document, 'script', 'dataLayer', 'GTM-WB28SLN5');</script>
+  <!-- End Google Tag Manager -->
+
+  <script type="text/javascript" src="../script/tracker.js"></script>
+
+  <script type="text/javascript">
+    function showHide(classname, obj) {
+      tracker.push({
+        event: (obj.checked) ? 'legend-show' : 'legend-hide',
+        legend_category: classname
+      });
+
+      var elementToHide = document.querySelectorAll("table.results tr." + classname);
+      for (var i = 0; i < elementToHide.length; i++) {
+        if (obj && !obj.checked) {
+          elementToHide[i].style.visibility = "hidden"; // or
+          elementToHide[i].style.display = "none"; // depending on what you're doing
+        } else {
+          elementToHide[i].style.visibility = ""; // or
+          elementToHide[i].style.display = ""; // depending on what you're doing
+        }
+      }
+    }
+  </script>
+
+</head>
+
+<body bgcolor="#f0f0f0">
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WB28SLN5" height="0" width="0"
+      style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+
+  <div class="wpo-block calculator-block">
+    <div class="zscore-calculator-wrapper add-padding bg-cararra">
+      <form data-hs-cf-bound="true">
+        <div class="form-group add-margin-bottom">
+          <label for="a">
+            Enter Z-Score:
+          </label>
+          <input id="zscore-input" name="a" type="number" min="-3.49" step="0.01" max="3.49" value="0">
+          <small class="form-text text-muted">(-3.50 to 3.50)</small>
+        </div>
+
+        <div
+          class="side-selector-wrapper form-check form-check-inline d-flex justify-content-start align-items-center add-margin-bottom">
+          <input class="form-check-input" type="radio" name="side" id="two-sided-radio" value="two-sided" checked="">
+          <label class="form-check-label remove-margin add-padding-left mod-padding-half" for="two-sided-radio">
+            Two-Sided
+          </label>
+
+          <input class="form-check-input add-margin-left mod-margin-x2" type="radio" name="side" id="one-sided-radio"
+            value="one-sided">
+          <label class="form-check-label remove-margin add-padding-left mod-padding-half" for="one-sided-radio">
+            One-Sided
+          </label>
+        </div>
+
+        <div class="calculate-button-wrapper bottom-margin">
+          <div class="wp-block-button submit-btn remove-margin">
+            <button id="zscore-calculate-button" type="button"
+              class="wp-block-button__link add-margin-bottom">CALCULATE</button>
+          </div>
+        </div>
+
+        <div class="output-wrapper d-flex justify-content-between align-items-center add-padding-y">
+          <label for="zscore-output remove-margin">
+            Confidence Level:
+          </label>
+
+          <output id="zscore-output" value=".5000"></output>
+        </div>
+      </form>
+    </div>
+
+    <script type="text/javascript">
+      function zValue(z) {
+        //z == number of standard deviations from the mean
+        //if z is greater than 3.5 standard deviations from the mean
+        //the number of significant digits will be outside of a reasonable
+        //range
+        if (z < -3.5)
+          return 0.0;
+        if (z > 3.5)
+          return 1.0;
+        var factK = 1;
+        var sum = 0;
+        var term = 1;
+        var k = 0;
+        var loopStop = Math.exp(-23);
+        while (Math.abs(term) > loopStop) {
+          term = .3989422804 * Math.pow(-1, k) * Math.pow(z, k) / (2 * k + 1) / Math.pow(2, k) * Math.pow(z, k + 1) / factK;
+          sum += term;
+          k++;
+          factK *= k;
+        }
+        sum += 0.5;
+        return sum;
+      }
+
+      function zValueTwo(z) {
+        //z == number of standard deviations from the mean
+        //if z is greater than 3.5 standard deviations from the mean
+        //the number of significant digits will be outside of a reasonable
+        //range
+        if (z > 0) {
+          z = -z;
+        }
+        if (z < -3.5)
+          return 0.0;
+        if (z > 3.5)
+          return 1.0;
+
+        var factK = 1;
+        var sum = 0;
+        var term = 1;
+        var k = 0;
+        var loopStop = Math.exp(-23);
+        while (Math.abs(term) > loopStop) {
+          term = .3989422804 * Math.pow(-1, k) * Math.pow(z, k) / (2 * k + 1) / Math.pow(2, k) * Math.pow(z, k + 1) / factK;
+          sum += term;
+          k++;
+          factK *= k;
+        }
+        // sum += 0.5;
+        // sum = sum * 2
+        // return sum;
+        sum += 0.5;
+        sum = sum * 2
+        sum = (sum * 100).toFixed(2);
+        sum = 100 - sum;
+        return sum;
+      }
+
+      jQuery(document).ready(function ($) {
+        $(document).keypress(function (e) {
+          if (e.which == 13) {
+            e.preventDefault();
+          }
+        });
+
+        var zScoreInput = $('#zscore-input');
+        var zScoreOutput = $('#zscore-output');
+        var zScoreCalculateButton = $('#zscore-calculate-button');
+
+        zScoreCalculateButton.on('click', function (event) {
+          event.preventDefault();
+          var side = $('input[name="side"]:checked').val();
+          var zScoreInputValue = zScoreInput.val();
+          var zScore = side === 'two-sided'
+            ? zValueTwo(zScoreInputValue)
+            : zValue(zScoreInputValue);
+
+          if (zScore === 0 || zScore === 0.0) {
+            zScoreOutput.val("0%");
+            return;
+          }
+
+          if (zScore) {
+            var outputValue = side === 'two-sided'
+              ? zScore
+              : zScore * 100;
+            zScoreOutput.val(outputValue.toFixed(2) + " %"); //- show percentage
+          }
+        });
+      });
+    </script>
+  </div>
+
+</body>
+</html>
