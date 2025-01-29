@@ -3,8 +3,7 @@
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <title>Evolytics / Concord Calculator - zScore</title>
-  <link rel="stylesheet" href="../style/calculator.css">
+  <title>zScore Calculator - Evolytics / Concord</title>
 
   <!-- Google Tag Manager -->
   <script>(function (w, d, s, l, i) {
@@ -30,39 +29,37 @@
   <!-- End Google Tag Manager (noscript) -->
 
 
-  <div class="wpo-block calculator-block">
-    <div class="zscore-calculator-wrapper add-padding bg-cararra">
+  <div>
+    <div>
       <form data-hs-cf-bound="true">
-        <div class="form-group add-margin-bottom">
+        <div>
           <label for="a">
             Enter Z-Score:
           </label>
           <input id="zscore-input" name="a" type="number" min="-3.49" step="0.01" max="3.49" value="0">
-          <small class="form-text text-muted">(-3.50 to 3.50)</small>
+          <small>(-3.50 to 3.50)</small>
         </div>
 
-        <div
-          class="side-selector-wrapper form-check form-check-inline d-flex justify-content-start align-items-center add-margin-bottom">
-          <input class="form-check-input" type="radio" name="side" id="two-sided-radio" value="two-sided" checked="">
-          <label class="form-check-label remove-margin add-padding-left mod-padding-half" for="two-sided-radio">
+        <div>
+          <input type="radio" name="side" id="two-sided-radio" value="two-sided" checked="">
+          <label for="two-sided-radio">
             Two-Sided
           </label>
 
-          <input class="form-check-input add-margin-left mod-margin-x2" type="radio" name="side" id="one-sided-radio"
+          <input type="radio" name="side" id="one-sided-radio"
             value="one-sided">
-          <label class="form-check-label remove-margin add-padding-left mod-padding-half" for="one-sided-radio">
+          <label for="one-sided-radio">
             One-Sided
           </label>
         </div>
 
-        <div class="calculate-button-wrapper bottom-margin">
-          <div class="wp-block-button submit-btn remove-margin">
-            <button id="zscore-calculate-button" type="button"
-              class="wp-block-button__link add-margin-bottom">CALCULATE</button>
+        <div>
+          <div>
+            <button id="zscore-calculate-button" type="button">CALCULATE</button>
           </div>
         </div>
 
-        <div class="output-wrapper d-flex justify-content-between align-items-center add-padding-y">
+        <div>
           <label for="zscore-output remove-margin">
             Confidence Level:
           </label>
