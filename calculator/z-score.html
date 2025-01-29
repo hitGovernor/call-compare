@@ -3,7 +3,7 @@
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <title>Analytics Call Comparison Tool</title>
+  <title>Evolytics / Concord Calculator - zScore</title>
   <link rel="stylesheet" href="/style/style.css">
 
   <!-- Google Tag Manager -->
@@ -18,26 +18,7 @@
   <!-- End Google Tag Manager -->
 
   <script type="text/javascript" src="../script/tracker.js"></script>
-
-  <script type="text/javascript">
-    function showHide(classname, obj) {
-      tracker.push({
-        event: (obj.checked) ? 'legend-show' : 'legend-hide',
-        legend_category: classname
-      });
-
-      var elementToHide = document.querySelectorAll("table.results tr." + classname);
-      for (var i = 0; i < elementToHide.length; i++) {
-        if (obj && !obj.checked) {
-          elementToHide[i].style.visibility = "hidden"; // or
-          elementToHide[i].style.display = "none"; // depending on what you're doing
-        } else {
-          elementToHide[i].style.visibility = ""; // or
-          elementToHide[i].style.display = ""; // depending on what you're doing
-        }
-      }
-    }
-  </script>
+  <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js" integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
 
 </head>
 
