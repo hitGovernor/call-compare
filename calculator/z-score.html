@@ -18,7 +18,8 @@
   <!-- End Google Tag Manager -->
 
   <script type="text/javascript" src="../script/tracker.js"></script>
-  <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js" integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
+    integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
 
 </head>
 
@@ -149,6 +150,14 @@
             ? zValueTwo(zScoreInputValue)
             : zValue(zScoreInputValue);
 
+          try {
+            tracker.push({
+              event: 'zscore-calculate',
+              z_score_type: side,
+              form_name: 'zscore-calculator'
+            });
+          } catch (e) { /* do nothing */ }
+
           if (zScore === 0 || zScore === 0.0) {
             zScoreOutput.val("0%");
             return;
@@ -166,4 +175,5 @@
   </div>
 
 </body>
+
 </html>
