@@ -1,0 +1,40 @@
+.calculator-block table {
+  border-collapse: collapse
+}
+
+.calculator-block table td,.calculator-block table th {
+  border: 2px solid #ddd9d4
+}
+
+.calculator-block table tr:first-child th {
+  border-top: 0
+}
+
+.calculator-block table tr:last-child td {
+  border-bottom: 0
+}
+
+.calculator-block table tr td:first-child,.calculator-block table tr th:first-child {
+  border-left: 0
+}
+
+.calculator-block table tr td:last-child,.calculator-block table tr th:last-child {
+  border-right: 0
+}
+
+.calculator-block table th {
+  text-transform: uppercase;
+  font-weight: 500;
+  font-size: 15px;
+  padding: 0 15px;
+  text-align: center
+}
+
+.calculator-block table th.add-padding {
+  padding: 15px
+}
+
+.calculator-block .input-notes,.calculator-block #ssCalc table th {
+  font-size: 12px;
+  padding: 15px
+}
