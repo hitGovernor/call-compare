@@ -18,38 +18,23 @@ class COMPARE {
   }
 }
 
-let consoleGroupObject = function (obj, indent = "") {  // Add indent for visualization
-  for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      console.groupCollapsed(indent + key); // Use groupCollapsed for initial collapse
+let CONFIG = {
+  qPrefix: ""
+};
 
-      const value = obj[key];
-
-      if (typeof value === 'object' && value !== null) {
-        consoleGroupObject(value, indent + "  "); // Recursive call with increased indent
-      } else {
-        console.log(indent + "  " + value); // Log value with indent
-      }
-
-      console.groupEnd();
-    }
-  }
-}
-
-let consoleDelimitedObject = function (obj, indent = "") {  // Add indent for visualization
+let flattenResults = function (obj, indent = "") {  // Add indent for visualization
+  let retval = [];
   for (const key in obj) { // exact|exists|leftOnly|rightOnly
     let resultType = key;
     if (obj.hasOwnProperty(key)) {
       for (const param in obj[key]) {
         if (obj[key].hasOwnProperty(param)) {
-          console.log([resultType, param, obj[key][param]["left"], obj[key][param]["right"]]);
-          // result.push(param);
+          retval.push([param, obj[key][param]["left"], obj[key][param]["right"], resultType]);
         }
       }
-
-      // console.log(result);
     }
   }
+  return retval;
 }
 
 let identifyInputType = function (input) {
@@ -83,7 +68,7 @@ let convertUrlToJson = function (url) {
   if (obj.hash) json["hash"] = obj.hash;
   if (obj.search) {
     for (let [key, value] of obj.searchParams.entries()) {
-      json["qp." + key] = value || null;
+      json[CONFIG.qPrefix + key] = value || null;
     }
   }
 
@@ -158,6 +143,73 @@ let comparePair = function (payload) {
   }
 }
 
+function convertFromCamelCase(camelCaseStr, separator = '-') {
+  if (typeof camelCaseStr !== 'string') {
+    return ""; // Or handle non-string input as needed
+  }
+
+  if (camelCaseStr === "") {
+      return ""; // Handle empty string
+  }
+
+  let result = "";
+  result += camelCaseStr[0]; // Add the first character
+
+  for (let i = 1; i < camelCaseStr.length; i++) {
+    const char = camelCaseStr[i];
+    if (char === char.toUpperCase()) { // Check for uppercase (indicating a new word)
+      result += separator + char.toLowerCase(); // Add separator and lowercase the character
+    } else {
+      result += char; // Add the character as is
+    }
+  }
+
+  return result;
+}
+
+let buildTableFromArray = function(data, compareId, headers = []) {
+  if (!Array.isArray(data) || data.length === 0) {
+    return "No data to display.";
+  }
+
+  const table = document.createElement('table');
+  table.className = "compare-table";
+  table.className = "results";
+  table.id = "compare-table-" + compareId;
+  table.setAttribute("data-compare-id", compareId);
+
+  if (headers && headers.length > 0) {
+    const headerRow = table.insertRow();
+    headerRow.className = "table-head";
+;
+    headers.forEach(headerText => {
+      const headerCell = document.createElement('th');
+      headerCell.textContent = headerText;
+      headerRow.appendChild(headerCell);
+    });
+  }
+
+  data.forEach((rowData, idx) => {
+    if (!Array.isArray(rowData)) {
+      console.error("Invalid data format. Each element should be an array.");
+      return; // Skip invalid rows
+    }
+
+    const row = table.insertRow();
+
+    rowData.forEach(cellData => {
+      row.setAttribute("data-compare-id", compareId + "-" + idx);
+      row.className = "result-row";
+      // row.className = "match-" + rowData[3];
+      row.className = convertFromCamelCase(rowData[3]);
+      const cell = row.insertCell();
+      cell.textContent = cellData;
+    });
+  });
+
+  return table;
+}
+
 let tests = [];
 tests.push({ left: '{"protocol":"https:","host":"www.example.com","hostname":"www.example.com","pathname":"/path","hash":"#section1","qp.name":"John","qp.age":"30", "qp.color":"blue"}', right: 'https://www.example.com:1234/path?name=John&age=30&number=1#section1' });
 tests.push({ left: 'https://example.com/path?name=John&age=30#section1\nhttps://www.example.com/path?name=John&age=30#section1', right: 'https://www.example.com/path?name=John&age=30#section1\nhttps://example.com/path?name=John&age=30#section1' });
@@ -166,6 +218,10 @@ tests.push({ left: 'https://example.com/path?name=John', right: 'https://www.exa
 tests.push({ left: 'https://example.com/path?name=John&age=30&a=b#section1', right: 'https://www.example.com/path?name=John&age=30&c=d#section1' });
 tests.push({ right: 'https://www.example.com/path?name=John&age=30#section1' });
 tests.push({ left: 'https://example.com:1234/path?name=John&age=30#section1' });
+tests.push({
+  left: '{"protocol":"https:","host":"example.com","hostname":"www.example.com","pathname":"/path","hash":"#section1","name":"John","age":"3", "color":"blue"}',
+  right: '{"protocol":"https:","host":"www.example.com","hostname":"www.example.com","pathname":"/path","hash":"#section1","name":"John","age":"30", "uncolor":"blue"}'
+});
 
 let testCount = 0;
 let output = [];
@@ -199,8 +255,15 @@ output.forEach(function (item) {
     console.group(item.counts);
     console.log("left:", item.left);
     console.log("right:", item.right);
-    consoleDelimitedObject(item.results);
-    // consoleGroupObject(item.results);
+    // console.log(flattenResults(item.results));
+    console.log(item.results);
+
+    let hr = document.createElement("hr");
+    document.body.appendChild(hr);
+
+    let table = buildTableFromArray(flattenResults(item.results), item.testCount, ["Key", "Left", "Right", "Match"]);
+    document.body.appendChild(table);
+
     console.groupEnd();
   }
 });
