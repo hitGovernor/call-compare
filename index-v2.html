@@ -21,7 +21,7 @@
   <script type="text/javascript" src="/script/call-compare-v2.js"></script>
   <script type="text/javascript" src="/script/page-actions.js"></script>
 
-  <script type="text/javascript">
+  <script type="text/javascript"> console.log("LOADED")
     function showHide(classname, obj) {
       tracker.push({
         event: (obj.checked) ? 'legend-show' : 'legend-hide',
@@ -102,17 +102,15 @@
       <tr valign='top'>
         <td>
           <!-- <a href="call-compare_old.html" title="Go back to old call compare tool" alt="Go back to old call compare tool">Go back to old call compare tool</a> -->
-          See how it works: <a title="Compare Sample URLs" alt="Compare Sample URLs" class="link-style"
-            onclick="javascript:pageActions.compareSamples();">Compare Sample URLs</a>
+          <!-- See how it works: <a title="Compare Sample URLs" alt="Compare Sample URLs" class="link-style"
+            onclick="javascript:pageActions.compareSamples();">Compare Sample URLs</a> -->
         </td>
         <td align='right'>
-          Download Results (csv):&nbsp;
-          <input type="checkbox" id="download" title="Download comparison results as a CSV file">&nbsp;&nbsp;
-          <input type='button' id='form-submit' value='Submit' onclick="javascript:pageActions.formSubmit();"
-            title="Form Submit Button">
+          <!-- Download Results (csv):&nbsp; -->
+          <!-- <input type="checkbox" id="download" title="Download comparison results as a CSV file">&nbsp;&nbsp; -->
+          <input type='submit' id='form-submit' value='Submit' title="Form Submit Button">
           &nbsp;&nbsp;
-          <input type="reset" value='Reset Form' title="Form Reset Button"
-            onclick="javascript:pageActions.formReset();">
+          <input type="reset" value='Reset Form' title="Form Reset Button" onclick="javascript:pageActions.resetForm();">
 
         </td>
       </tr>
@@ -126,18 +124,21 @@
 
   <script type="text/javascript">
     document.getElementById('compare-form').addEventListener('submit', function (event) {
-
+      event.preventDefault();
       tracker.push({
         event: 'form-submit',
-        form_name: "" // pageActions.FORMNAME
+        form_name: "call-compare-v2"
       });
 
-      let testCount = 0;
+      window.testCount = 0;
       let output = [];
       let test = {
         left: document.getElementById('left-calls').value,
         right: document.getElementById('right-calls').value
       }
+
+      var res = document.getElementById('results');
+      res.innerHTML = "";
 
       if (!test.left) {
         let comparison = new COMPARE();
@@ -162,22 +163,14 @@
         if (item.error) {
           console.warn(item.error);
         } else {
-          console.group(item.counts);
-          console.log("left:", item.left);
-          console.log("right:", item.right);
-          // console.log(flattenResults(item.results));
-          console.log(item.results);
-
-          let hr = document.createElement("hr");
-          document.body.appendChild(hr);
-
           let table = buildTableFromArray(flattenResults(item.results), item.testCount, ["Key", "Left", "Right", "Match"]);
           document.body.appendChild(table);
 
-          console.groupEnd();
+          res.appendChild(table);
+          res.appendChild(document.createElement('hr'));
         }
       });
-
+      
       // var results = compare.exec(ctl, chl, incl_excl_params, paramFilter);
       var checkboxes = document.querySelectorAll("table.legend input[type='checkbox']");
       for (var i = 0, maxi = checkboxes.length; i < maxi; i++) {
@@ -186,6 +179,9 @@
 
     });
   </script>
+  <!-- Cloudflare Pages Analytics -->
+  <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
+    data-cf-beacon='{"token": "c5b1e1c7e7dd4a0db3587e578f579a37"}'></script><!-- Cloudflare Pages Analytics -->
 </body>
 
 </html>

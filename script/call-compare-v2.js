@@ -210,60 +210,60 @@ let buildTableFromArray = function(data, compareId, headers = []) {
   return table;
 }
 
-let tests = [];
-tests.push({ left: '{"protocol":"https:","host":"www.example.com","hostname":"www.example.com","pathname":"/path","hash":"#section1","qp.name":"John","qp.age":"30", "qp.color":"blue"}', right: 'https://www.example.com:1234/path?name=John&age=30&number=1#section1' });
-tests.push({ left: 'https://example.com/path?name=John&age=30#section1\nhttps://www.example.com/path?name=John&age=30#section1', right: 'https://www.example.com/path?name=John&age=30#section1\nhttps://example.com/path?name=John&age=30#section1' });
-tests.push({ left: 'https://example.com/path/file.html?a=b', right: 'https://www.example.com/path?name=John&age=30#section1' });
-tests.push({ left: 'https://example.com/path?name=John', right: 'https://www.example.com/path?name=John&age=30#section1' });
-tests.push({ left: 'https://example.com/path?name=John&age=30&a=b#section1', right: 'https://www.example.com/path?name=John&age=30&c=d#section1' });
-tests.push({ right: 'https://www.example.com/path?name=John&age=30#section1' });
-tests.push({ left: 'https://example.com:1234/path?name=John&age=30#section1' });
-tests.push({
-  left: '{"protocol":"https:","host":"example.com","hostname":"www.example.com","pathname":"/path","hash":"#section1","name":"John","age":"3", "color":"blue"}',
-  right: '{"protocol":"https:","host":"www.example.com","hostname":"www.example.com","pathname":"/path","hash":"#section1","name":"John","age":"30", "uncolor":"blue"}'
-});
+// let tests = [];
+// tests.push({ left: '{"protocol":"https:","host":"www.example.com","hostname":"www.example.com","pathname":"/path","hash":"#section1","qp.name":"John","qp.age":"30", "qp.color":"blue"}', right: 'https://www.example.com:1234/path?name=John&age=30&number=1#section1' });
+// tests.push({ left: 'https://example.com/path?name=John&age=30#section1\nhttps://www.example.com/path?name=John&age=30#section1', right: 'https://www.example.com/path?name=John&age=30#section1\nhttps://example.com/path?name=John&age=30#section1' });
+// tests.push({ left: 'https://example.com/path/file.html?a=b', right: 'https://www.example.com/path?name=John&age=30#section1' });
+// tests.push({ left: 'https://example.com/path?name=John', right: 'https://www.example.com/path?name=John&age=30#section1' });
+// tests.push({ left: 'https://example.com/path?name=John&age=30&a=b#section1', right: 'https://www.example.com/path?name=John&age=30&c=d#section1' });
+// tests.push({ right: 'https://www.example.com/path?name=John&age=30#section1' });
+// tests.push({ left: 'https://example.com:1234/path?name=John&age=30#section1' });
+// tests.push({
+//   left: '{"protocol":"https:","host":"example.com","hostname":"www.example.com","pathname":"/path","hash":"#section1","name":"John","age":"3", "color":"blue"}',
+//   right: '{"protocol":"https:","host":"www.example.com","hostname":"www.example.com","pathname":"/path","hash":"#section1","name":"John","age":"30", "uncolor":"blue"}'
+// });
 
-let testCount = 0;
-let output = [];
-tests.forEach(function (test) {
-  if (!test.left) {
-    let comparison = new COMPARE();
-    comparison.error = "You must provide at least LEFT URL for comparison";
-    comparison.testCount = ++testCount;
-    output.push(comparison);
+// let testCount = 0;
+// let output = [];
+// tests.forEach(function (test) {
+//   if (!test.left) {
+//     let comparison = new COMPARE();
+//     comparison.error = "You must provide at least LEFT URL for comparison";
+//     comparison.testCount = ++testCount;
+//     output.push(comparison);
 
-    return false;
-  }
+//     return false;
+//   }
 
-  let left = test.left ? test.left.split("\n") : null;
-  let right = test.right ? test.right.split("\n") : test.left.split("\n");
+//   let left = test.left ? test.left.split("\n") : null;
+//   let right = test.right ? test.right.split("\n") : test.left.split("\n");
 
-  for (var i = 0, max = left.length; i < max; i++) {
-    output.push(comparePair({
-      left: left[i],
-      right: right[i]
-    }));
-  };
-});
+//   for (var i = 0, max = left.length; i < max; i++) {
+//     output.push(comparePair({
+//       left: left[i],
+//       right: right[i]
+//     }));
+//   };
+// });
 
-// console.table(output);
+// // console.table(output);
 
-output.forEach(function (item) {
-  if (item.error) {
-    console.warn(item.error);
-  } else {
-    console.group(item.counts);
-    console.log("left:", item.left);
-    console.log("right:", item.right);
-    // console.log(flattenResults(item.results));
-    console.log(item.results);
+// output.forEach(function (item) {
+//   if (item.error) {
+//     console.warn(item.error);
+//   } else {
+//     console.group(item.counts);
+//     console.log("left:", item.left);
+//     console.log("right:", item.right);
+//     // console.log(flattenResults(item.results));
+//     console.log(item.results);
 
-    let hr = document.createElement("hr");
-    document.body.appendChild(hr);
+//     let hr = document.createElement("hr");
+//     document.body.appendChild(hr);
 
-    let table = buildTableFromArray(flattenResults(item.results), item.testCount, ["Key", "Left", "Right", "Match"]);
-    document.body.appendChild(table);
+//     let table = buildTableFromArray(flattenResults(item.results), item.testCount, ["Key", "Left", "Right", "Match"]);
+//     document.body.appendChild(table);
 
-    console.groupEnd();
-  }
-});
+//     console.groupEnd();
+//   }
+// });
