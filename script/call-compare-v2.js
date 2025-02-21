@@ -177,6 +177,7 @@ let buildTableFromArray = function(data, compareId, headers = []) {
   table.className = "results";
   table.id = "compare-table-" + compareId;
   table.setAttribute("data-compare-id", compareId);
+  table.setAttribute("width", "100%");
 
   if (headers && headers.length > 0) {
     const headerRow = table.insertRow();
