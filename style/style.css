@@ -45,3 +45,7 @@ table.results tr:nth-child(odd) {
 .link-style:hover {
   color: darkblue;
 }
+
+table.results {
+  width: '100%';
+}
