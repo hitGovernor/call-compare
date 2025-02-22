@@ -3,9 +3,13 @@ var pageActions = {
 
   compareSamples: function () {
     let sampleUrls = {
-      "left": "https://www.example.com/path/file.html?cb=12345678&account=abc123&prod=pro&event=subscribe",
-      "right": "https://www.example.com/path/file.html?cb=87654321&account=abc123&event=subscribe&region=emea"
+      "left": '{"protocol":"https:","host":"www.example.com","hostname":"www.example.com","pathname":"/path","hash":"#section1","name":"John","age":"30", "color":"blue"}\nhttps://www.example.com:1234/path?name=John&age=30&number=1#section1',
+      "right": 'https://www.example.com:1234/path?name=John&age=30&number=1#section1\n{"protocol":"https:","host":"www.example.com","hostname":"www.example.com","pathname":"/path","hash":"#section1","name":"John","age":"30", "color":"blue"}'
     };
+    // let sampleUrls = {
+    //   "left": "https://www.example.com/path/file.html?cb=12345678&account=abc123&prod=pro&event=subscribe",
+    //   "right": "https://www.example.com/path/file.html?cb=87654321&account=abc123&event=subscribe&region=emea"
+    // };
 
     document.getElementById("left-calls").value = sampleUrls.left;
     document.getElementById("right-calls").value = sampleUrls.right;
@@ -136,34 +140,40 @@ var pageActions = {
   },
 
   formSubmit: function () {
-    tracker.push({
-      event: 'form-submit',
-      form_name: pageActions.FORMNAME
-    });
+    
+    if (window.callCompare) {
+      tracker.push({
+        event: 'form-submit',
+        form_name: pageActions.FORMNAME
+      });
 
-    var ctl = document.getElementById('left-calls').value,
-      chl = document.getElementById('right-calls').value;
+      var ctl = document.getElementById('left-calls').value,
+        chl = document.getElementById('right-calls').value;
 
-    chl = (chl.length > 0) ? chl : ctl;
+      chl = (chl.length > 0) ? chl : ctl;
 
-    var aryLeft = ctl.split('\n'),
-      aryRight = chl.split('\n');
+      var aryLeft = ctl.split('\n'),
+        aryRight = chl.split('\n');
 
-    var tests = callCompare.mergeLeftRight(aryLeft, aryRight);
+      var tests = callCompare.mergeLeftRight(aryLeft, aryRight);
 
-    var output = [];
-    for (var i = 0, max = tests.length; i < max; i++) {
-      var left = callCompare.parseIt(tests[i].left),
-        right = (tests[i].right) ? callCompare.parseIt(tests[i].right) : {};
+      var output = [];
+      for (var i = 0, max = tests.length; i < max; i++) {
+        var left = callCompare.parseIt(tests[i].left),
+          right = (tests[i].right) ? callCompare.parseIt(tests[i].right) : {};
 
-      var result = callCompare.compare(left, right);
-      output.push(result);
+        var result = callCompare.compare(left, right);
+        output.push(result);
+      }
+
+      this.buildTable(output);
+      window.csv = this.buildCSV(output);
+      this.downloadCSV(window.csv);
+
+    } else {
+      let formSubmit = document.getElementById('form-submit');
+      formSubmit.click();
     }
-
-    this.buildTable(output);
-    window.csv = this.buildCSV(output);
-    this.downloadCSV(window.csv);
-
     // var results = compare.exec(ctl, chl, incl_excl_params, paramFilter);
     var checkboxes = document.querySelectorAll("table.legend input[type='checkbox']");
     for (var i = 0, maxi = checkboxes.length; i < maxi; i++) {
