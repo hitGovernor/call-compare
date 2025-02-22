@@ -141,7 +141,7 @@ var pageActions = {
       form_name: pageActions.FORMNAME
     });
 
-    if (callCompare) {
+    if (window.callCompare) {
       var ctl = document.getElementById('left-calls').value,
         chl = document.getElementById('right-calls').value;
 
