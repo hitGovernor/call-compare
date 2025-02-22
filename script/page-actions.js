@@ -3,7 +3,7 @@ var pageActions = {
 
   compareSamples: function () {
     let sampleUrls = {
-      "left": '"{"protocol":"https:","host":"www.example.com","hostname":"www.example.com","pathname":"/path","hash":"#section1","name":"John","age":"30", "color":"blue"}\nhttps://www.example.com:1234/path?name=John&age=30&number=1#section1',
+      "left": '{"protocol":"https:","host":"www.example.com","hostname":"www.example.com","pathname":"/path","hash":"#section1","name":"John","age":"30", "color":"blue"}\nhttps://www.example.com:1234/path?name=John&age=30&number=1#section1',
       "right": 'https://www.example.com:1234/path?name=John&age=30&number=1#section1\n{"protocol":"https:","host":"www.example.com","hostname":"www.example.com","pathname":"/path","hash":"#section1","name":"John","age":"30", "color":"blue"}'
     };
     // let sampleUrls = {
