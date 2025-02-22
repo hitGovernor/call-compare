@@ -5,23 +5,23 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>Analytics Call Comparison Tool</title>
   <link rel="stylesheet" href="/style/style.css">
-
+  
   <!-- Google Tag Manager -->
-  <!-- <script>(function (w, d, s, l, i) {
+  <script>(function (w, d, s, l, i) {
       w[l] = w[l] || []; w[l].push({
         'gtm.start':
           new Date().getTime(), event: 'gtm.js'
       }); var f = d.getElementsByTagName(s)[0],
         j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
           'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
-    })(window, document, 'script', 'dataLayer', 'GTM-WB28SLN5');</script> -->
+    })(window, document, 'script', 'dataLayer', 'GTM-WB28SLN5');</script>
   <!-- End Google Tag Manager -->
 
-  <script type="text/javascript" src="/script/tracker.js"></script>
-  <script type="text/javascript" src="/script/call-compare-v2.js"></script>
-  <script type="text/javascript" src="/script/page-actions.js"></script>
+ <script type="text/javascript" src="/script/tracker.js"></script>
+ <script type="text/javascript" src="/script/call-compare_bak.js"></script>
+ <script type="text/javascript" src="/script/page-actions.js"></script>
 
-  <script type="text/javascript"> console.log("LOADED")
+  <script type="text/javascript">
     function showHide(classname, obj) {
       tracker.push({
         event: (obj.checked) ? 'legend-show' : 'legend-hide',
@@ -45,8 +45,8 @@
 
 <body bgcolor="#f0f0f0">
   <!-- Google Tag Manager (noscript) -->
-  <!-- <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WB28SLN5" height="0" width="0"
-      style="display:none;visibility:hidden"></iframe></noscript> -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WB28SLN5" height="0" width="0"
+      style="display:none;visibility:hidden"></iframe></noscript>
   <!-- End Google Tag Manager (noscript) -->
 
   <strong>Analytics Call Comparison Tool</strong>
@@ -56,7 +56,7 @@
     Submit for comparison results.
   </small>
 
-  <form id='compare-form'>
+  <form id='compare-form' onsubmit="javascript:pageActions.formSubmit()">
     <table id='form-wrapper'>
       <tr>
         <td>
@@ -102,15 +102,17 @@
       <tr valign='top'>
         <td>
           <!-- <a href="call-compare_old.html" title="Go back to old call compare tool" alt="Go back to old call compare tool">Go back to old call compare tool</a> -->
-          <!-- See how it works: <a title="Compare Sample URLs" alt="Compare Sample URLs" class="link-style"
-            onclick="javascript:pageActions.compareSamples();">Compare Sample URLs</a> -->
+          See how it works: <a title="Compare Sample URLs" alt="Compare Sample URLs" class="link-style"
+            onclick="javascript:pageActions.compareSamples();">Compare Sample URLs</a>
         </td>
         <td align='right'>
-          <!-- Download Results (csv):&nbsp; -->
-          <!-- <input type="checkbox" id="download" title="Download comparison results as a CSV file">&nbsp;&nbsp; -->
-          <input type='submit' id='form-submit' value='Submit' title="Form Submit Button">
+          Download Results (csv):&nbsp;
+          <input type="checkbox" id="download" title="Download comparison results as a CSV file">&nbsp;&nbsp;
+          <input type='button' id='form-submit' value='Submit' onclick="javascript:pageActions.formSubmit();"
+            title="Form Submit Button">
           &nbsp;&nbsp;
-          <input type="reset" value='Reset Form' title="Form Reset Button" onclick="javascript:pageActions.formReset();">
+          <input type="reset" value='Reset Form' title="Form Reset Button"
+            onclick="javascript:pageActions.formReset();">
 
         </td>
       </tr>
@@ -121,65 +123,6 @@
   <!-- results -->
   <div id="results" class="results"></div>
   <!-- <div id="footer" class="footer"><br><br>Something Broken? Feature Request? Let me know: <a href="https://twitter.com/bcj19" alt="Tweet @bcj19" title="Tweet @bcj19">@bcj19</a></div> -->
-
-  <script type="text/javascript">
-    document.getElementById('compare-form').addEventListener('submit', function (event) {
-      event.preventDefault();
-      tracker.push({
-        event: 'form-submit',
-        form_name: "call-compare-v2"
-      });
-
-      window.testCount = 0;
-      let output = [];
-      let test = {
-        left: document.getElementById('left-calls').value,
-        right: document.getElementById('right-calls').value
-      }
-
-      var res = document.getElementById('results');
-      res.innerHTML = "";
-
-      if (!test.left) {
-        let comparison = new COMPARE();
-        comparison.error = "You must provide at least LEFT URL for comparison";
-        comparison.testCount = ++testCount;
-        output.push(comparison);
-
-        return false;
-      }
-
-      let left = test.left ? test.left.split("\n") : null;
-      let right = test.right ? test.right.split("\n") : test.left.split("\n");
-
-      for (var i = 0, max = left.length; i < max; i++) {
-        output.push(comparePair({
-          left: left[i],
-          right: right[i]
-        }));
-      };
-
-      output.forEach(function (item) {
-        if (item.error) {
-          console.warn(item.error);
-        } else {
-          let table = buildTableFromArray(flattenResults(item.results), item.testCount, ["Key", "Left", "Right", "Match"]);
-          document.body.appendChild(table);
-
-          res.appendChild(table);
-          res.appendChild(document.createElement('hr'));
-        }
-      });
-      
-      // var results = compare.exec(ctl, chl, incl_excl_params, paramFilter);
-      var checkboxes = document.querySelectorAll("table.legend input[type='checkbox']");
-      for (var i = 0, maxi = checkboxes.length; i < maxi; i++) {
-        checkboxes[i].checked = true;
-      }
-
-    });
-  </script>
-
 </body>
 
 </html>
