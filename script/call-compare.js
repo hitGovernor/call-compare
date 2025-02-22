@@ -106,6 +106,16 @@ let compareJsonObjects = function (obj1, obj2) {
     }
   }
 
+  // track comparison and return the result object with all findings
+  tracker.push({
+    event: 'compare',
+    // compare_count_total: compare.counts.total,
+    compare_count_exact: compare.counts.exact,
+    compare_count_exists: compare.counts.exists,
+    compare_count_left_only: compare.counts.leftOnly,
+    compare_count_right_only: compare.counts.rightOnly
+  });
+
   return compare;
 }
 
