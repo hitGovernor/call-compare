@@ -149,7 +149,7 @@ function convertFromCamelCase(camelCaseStr, separator = '-') {
   }
 
   if (camelCaseStr === "") {
-      return ""; // Handle empty string
+    return ""; // Handle empty string
   }
 
   let result = "";
@@ -167,7 +167,7 @@ function convertFromCamelCase(camelCaseStr, separator = '-') {
   return result;
 }
 
-let buildTableFromArray = function(data, compareId, headers = []) {
+let buildTableFromArray = function (data, compareId, headers = []) {
   if (!Array.isArray(data) || data.length === 0) {
     return "No data to display.";
   }
@@ -182,7 +182,7 @@ let buildTableFromArray = function(data, compareId, headers = []) {
   if (headers && headers.length > 0) {
     const headerRow = table.insertRow();
     headerRow.className = "table-head";
-;
+    ;
     headers.forEach(headerText => {
       const headerCell = document.createElement('th');
       headerCell.textContent = headerText;
@@ -198,13 +198,15 @@ let buildTableFromArray = function(data, compareId, headers = []) {
 
     const row = table.insertRow();
 
-    rowData.forEach(cellData => {
+    rowData.forEach((cellData, cellIdx) => {
       row.setAttribute("data-compare-id", compareId + "-" + idx);
       row.className = "result-row";
       // row.className = "match-" + rowData[3];
       row.className = convertFromCamelCase(rowData[3]);
       const cell = row.insertCell();
-      cell.setAttribute("style", "word-break: break-all;");
+      if (cellIdx === 1 || cellIdx === 2) {
+        cell.setAttribute("style", "word-break: break-all;");
+      }
       cell.textContent = cellData;
     });
   });
