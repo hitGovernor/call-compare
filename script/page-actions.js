@@ -3,9 +3,13 @@ var pageActions = {
 
   compareSamples: function () {
     let sampleUrls = {
-      "left": "https://www.example.com/path/file.html?cb=12345678&account=abc123&prod=pro&event=subscribe",
-      "right": "https://www.example.com/path/file.html?cb=87654321&account=abc123&event=subscribe&region=emea"
+      "left": '"{"protocol":"https:","host":"www.example.com","hostname":"www.example.com","pathname":"/path","hash":"#section1","name":"John","age":"30", "color":"blue"}\nhttps://www.example.com:1234/path?name=John&age=30&number=1#section1',
+      "right": 'https://www.example.com:1234/path?name=John&age=30&number=1#section1\n{"protocol":"https:","host":"www.example.com","hostname":"www.example.com","pathname":"/path","hash":"#section1","name":"John","age":"30", "color":"blue"}';
     };
+    // let sampleUrls = {
+    //   "left": "https://www.example.com/path/file.html?cb=12345678&account=abc123&prod=pro&event=subscribe",
+    //   "right": "https://www.example.com/path/file.html?cb=87654321&account=abc123&event=subscribe&region=emea"
+    // };
 
     document.getElementById("left-calls").value = sampleUrls.left;
     document.getElementById("right-calls").value = sampleUrls.right;
@@ -136,12 +140,13 @@ var pageActions = {
   },
 
   formSubmit: function () {
-    tracker.push({
-      event: 'form-submit',
-      form_name: pageActions.FORMNAME
-    });
-
+    
     if (window.callCompare) {
+      tracker.push({
+        event: 'form-submit',
+        form_name: pageActions.FORMNAME
+      });
+
       var ctl = document.getElementById('left-calls').value,
         chl = document.getElementById('right-calls').value;
 
