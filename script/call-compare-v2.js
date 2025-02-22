@@ -204,6 +204,7 @@ let buildTableFromArray = function(data, compareId, headers = []) {
       // row.className = "match-" + rowData[3];
       row.className = convertFromCamelCase(rowData[3]);
       const cell = row.insertCell();
+      cell.setAttribute("style", "word-break: break-all;");
       cell.textContent = cellData;
     });
   });
