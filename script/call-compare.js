@@ -22,6 +22,30 @@ let CONFIG = {
   qPrefix: ""
 };
 
+let flattenObject = function(obj, prefix = '', result = {}) {
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      const newKey = prefix ? `${prefix}.${key}` : key;
+      const value = obj[key];
+
+      if (typeof value === 'object' && value !== null) {
+        if (Array.isArray(value)) {
+          // Handle arrays by iterating and flattening each element
+          value.forEach((item, index) => {
+            flattenObject({ [index]: item }, newKey, result);
+          });
+        } else {
+          flattenObject(value, newKey, result); // Recursive call for nested objects
+        }
+      } else {
+        result[newKey] = value; // Assign primitive values directly
+      }
+    }
+  }
+  
+  return result;
+}
+
 let flattenResults = function (obj, indent = "") {  // Add indent for visualization
   let retval = [];
   for (const key in obj) { // exact|exists|leftOnly|rightOnly
@@ -129,6 +153,7 @@ let formatObjectForCompare = function (inputType, comparisonObject) {
     retval = comparisonObject;
   }
 
+  retval = flattenObject(retval);
   return retval;
 }
 
