@@ -19,10 +19,11 @@ class COMPARE {
 }
 
 let CONFIG = {
-  qPrefix: ""
+  qPrefix: "",
+  customDelimiter: ";"
 };
 
-let flattenObject = function(obj, prefix = '', result = {}) {
+let flattenObject = function (obj, prefix = '', result = {}) {
   for (const key in obj) {
     if (obj.hasOwnProperty(key)) {
       const newKey = prefix ? `${prefix}.${key}` : key;
@@ -42,7 +43,7 @@ let flattenObject = function(obj, prefix = '', result = {}) {
       }
     }
   }
-  
+
   return result;
 }
 
@@ -94,6 +95,14 @@ let convertUrlToJson = function (url) {
     for (let [key, value] of obj.searchParams.entries()) {
       json[CONFIG.qPrefix + key] = value || null;
     }
+  } else if (CONFIG.customDelimiter && obj.pathname.indexOf(CONFIG.customDelimiter) > -1) {
+    let parsedPath = obj.pathname.split(CONFIG.customDelimiter);
+    json["pathname"] = parsedPath[0];
+    parsedPath.shift();
+    parsedPath.forEach(function (item) {
+      let pair = item.split("=");
+      json[pair[0]] = pair[1];
+    });
   }
 
   return json;
