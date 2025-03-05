@@ -14,20 +14,20 @@ The call compare tool supports multiple string types:
   - Support for non-standard URL structures exists. At present, this accounts for Doubleclick beacons that do not use a standard querystring/search pattern, instead delimiting all parameters with a semicolon (`;`)
 * JSON string (Javascript objects can be converted using `JSON.stringify();`)
 
-### FAQs
+## FAQs
 
-1. Do I have to enter values in both the left and right textareas?
+### Do I have to enter values in both the left and right textareas?
  - No. At a minimum, a value must be entered in the left textarea. If no value is entered on the right, the left value is parsed and compared against itself.
-2. Can I compare multiple strings at a time?
+### Can I compare multiple strings at a time?
  - Yes. Each string must be on a new line. (Copy/paste from a spreadsheet column works well here)
-3. How does the call compare tool know which values in the left textarea to compare against from the right textarea?
+### How does the call compare tool know which values in the left textarea to compare against from the right textarea?
  - The tool does a line-by-line comparison. It is up to the user to ensure that each new string is correctly aligned between the two textareas.
-4. Does the call compare tool store any data?
+### Does the call compare tool store any data?
  - No. All logic lives and executes in the browser. No data is saved or stored
-5. Are you tracking me?
+### Are you tracking me?
  - Yes. The call compare tool has limited Google Analytics tracking in place. 
 
-### Samples
+## Samples
 
 Compare standard URLs:
 ```
@@ -47,5 +47,5 @@ Compare JSON strings:
 {"protocol":"https:","host":"www.example.com","hostname":"www.example.com","pathname":"/path","hash":"#section1","name":"John","age":"30", "uncolor":"blue"}
 ```
 
-[!TIP]
+> [!TIP]
 > Try comparing different string types against each other. For example, enter a URL in the left textarea and a JSON string in the right textarea!
