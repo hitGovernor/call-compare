@@ -62,7 +62,12 @@ let flattenResults = function (obj, indent = "") {  // Add indent for visualizat
   return retval;
 }
 
-let identifyInputType = function (input) {
+let identifyInputType = function (input, compType = null) {
+  // // return the override, if provided
+  // if(compType) {
+  //   return compType;
+  // }
+
   if (typeof input === 'string') {
     try {
       new URL(input); // Try to create a URL object
@@ -168,8 +173,8 @@ let formatObjectForCompare = function (inputType, comparisonObject) {
 
 let comparePair = function (payload) {
   if (payload.left) {
-    let leftType = identifyInputType(payload.left);
-    let rightType = identifyInputType(payload.right || payload.left);
+    let leftType = identifyInputType(payload.left, payload.compType);
+    let rightType = identifyInputType(payload.right || payload.left, payload.compType);
 
     // format url/json objects for comparison
     let obj1 = formatObjectForCompare(leftType, payload.left);
