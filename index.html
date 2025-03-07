@@ -71,14 +71,22 @@
         <td></td>
       </tr> -->
       <tr>
+        <td colspan="2">
+          <p>
+            <label for="custom-delimiter">Custom String Delimiter:</label>
+            <input type="text" id="custom-delimiter" name="custom-delimiter" maxlength="3" size="3">
+        </td>
+        <td></td>
+      </tr>
+      <tr>
         <td>
           <!-- Left &#8680;<br> -->
-          <textarea cols='40' rows='7' id='left-calls'
+          <textarea cols='36' rows='7' id='left-calls'
             placeholder="** Required **&#10;&#10;Enter LEFT text for parsing and/or comparison"></textarea>
         </td>
         <td>
           <!-- Right &#8680;<br> -->
-          <textarea cols='40' rows='7' id='right-calls'
+          <textarea cols='36' rows='7' id='right-calls'
             placeholder="** Optional **&#10;&#10;Enter RIGHT text for comparison"></textarea>
         </td>
         <td>
@@ -153,6 +161,7 @@
       }
 
       // let compType = document.querySelector('input[name="comp_type"]:checked').value || "";
+      let customDelimiter = document.getElementById('custom-delimiter').value || "";
 
       var res = document.getElementById('results');
       res.innerHTML = "";
@@ -174,6 +183,7 @@
           output.push(comparePair({
             left: left[i],
             right: right[i],
+            customDelimiter: customDelimiter
             // compType: compType
           }));
         }
