@@ -62,28 +62,58 @@ let flattenResults = function (obj, indent = "") {  // Add indent for visualizat
   return retval;
 }
 
-let identifyInputType = function (input) {
-  if (typeof input === 'string') {
+// let identifyInputType = function (input, compType = null) {
+//   // // return the override, if provided
+//   // if(compType) {
+//   //   return compType;
+//   // }
+
+//   if (typeof input === 'string') {
+//     try {
+//       new URL(input); // Try to create a URL object
+//       return 'url';
+//     } catch (e) {
+//       try {
+//         JSON.parse(input); // Try to parse as JSON
+//         return 'json';
+//       } catch (e) {
+//         return 'string'; // If not a URL or JSON, it's a regular string
+//       }
+//     }
+//   } else if (typeof input === 'object' && input !== null && !Array.isArray(input)) { // Check for object, not null, and not an array
+//     return 'object';
+//   } else {
+//     return 'unknown'; // Or another appropriate type if needed (e.g., 'number', 'boolean')
+//   }
+// }
+
+function identifyInputType(input) {
+  if (typeof input === 'object' && input !== null) {
+    if (Array.isArray(input)) {
+      return 'array';
+    } else {
+      return 'object';
+    }
+  } else if (typeof input === 'string') {
     try {
-      new URL(input); // Try to create a URL object
-      return 'url';
-    } catch (e) {
+      JSON.parse(input);
+      return 'json';
+    } catch (jsonError) {
       try {
-        JSON.parse(input); // Try to parse as JSON
-        return 'json';
-      } catch (e) {
-        return 'string'; // If not a URL or JSON, it's a regular string
+        new URL(input);
+        return 'url';
+      } catch (urlError) {
+        return 'string';
       }
     }
-  } else if (typeof input === 'object' && input !== null && !Array.isArray(input)) { // Check for object, not null, and not an array
-    return 'object';
   } else {
-    return 'unknown'; // Or another appropriate type if needed (e.g., 'number', 'boolean')
+    return 'unknown'; // Or handle other types as needed (number, boolean, etc.)
   }
 }
 
-let convertUrlToJson = function (url) {
+let convertUrlToJson = function (url, customDelimiter = null) {
   let obj = new URL(url);
+  let delimiter = customDelimiter || CONFIG.customDelimiter;
   let json = {};
 
   if (obj.protocol) json["protocol"] = obj.protocol;
@@ -95,10 +125,25 @@ let convertUrlToJson = function (url) {
     for (let [key, value] of obj.searchParams.entries()) {
       json[CONFIG.qPrefix + key] = value || null;
     }
-  } else if (CONFIG.customDelimiter && obj.pathname.indexOf(CONFIG.customDelimiter) > -1) {
-    let parsedPath = obj.pathname.split(CONFIG.customDelimiter);
+  } else if (delimiter && obj.pathname.indexOf(delimiter) > -1) {
+    let parsedPath = obj.pathname.split(delimiter);
     json["pathname"] = parsedPath[0];
     parsedPath.shift();
+    parsedPath.forEach(function (item) {
+      let pair = item.split("=");
+      json[pair[0]] = pair[1];
+    });
+  }
+
+  return json;
+}
+
+let parseStringToJson = function(str, customDelimiter = null) {
+  let delimiter = customDelimiter || CONFIG.customDelimiter;
+  let json = {};
+  
+  if (str.indexOf(delimiter) > -1) {
+    let parsedPath = str.split(delimiter);
     parsedPath.forEach(function (item) {
       let pair = item.split("=");
       json[pair[0]] = pair[1];
@@ -152,12 +197,14 @@ let compareJsonObjects = function (obj1, obj2) {
   return compare;
 }
 
-let formatObjectForCompare = function (inputType, comparisonObject) {
+let formatObjectForCompare = function (inputType, comparisonObject, customDelimiter) {
   let retval;
   if (inputType === "url") {
-    retval = convertUrlToJson(comparisonObject);
+    retval = convertUrlToJson(comparisonObject, customDelimiter);
   } else if (inputType === "json") {
     retval = JSON.parse(comparisonObject);
+  } else if(inputType === "string") {
+    retval = parseStringToJson(comparisonObject, customDelimiter);
   } else {
     retval = comparisonObject;
   }
@@ -168,13 +215,13 @@ let formatObjectForCompare = function (inputType, comparisonObject) {
 
 let comparePair = function (payload) {
   if (payload.left) {
-    let leftType = identifyInputType(payload.left);
-    let rightType = identifyInputType(payload.right || payload.left);
+    let leftType = identifyInputType(payload.left, payload.compType);
+    let rightType = identifyInputType(payload.right || payload.left, payload.compType);
 
     // format url/json objects for comparison
-    let obj1 = formatObjectForCompare(leftType, payload.left);
+    let obj1 = formatObjectForCompare(leftType, payload.left, payload.customDelimiter);
     // if not right value provided, simply compare left against itself
-    let obj2 = (payload.right) ? formatObjectForCompare(rightType, payload.right) : obj2 = obj1;
+    let obj2 = (payload.right) ? formatObjectForCompare(rightType, payload.right, payload.customDelimiter) : obj2 = obj1;
 
     let comparison = (compareJsonObjects(obj1, obj2));
     comparison.left = payload.left;

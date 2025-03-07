@@ -58,13 +58,36 @@
 
   <form id='compare-form'>
     <table id='form-wrapper'>
+      <!-- <tr>
+        <td colspan="2">
+          <p>Comparison Type:&nbsp;&nbsp;
+            <input type="radio" id="auto" name="comp_type" value="auto" checked>
+            <label for="auto">Auto-Detect</label>
+            <input type="radio" id="url" name="comp_type" value="url">
+            <label for="css">URL</label>
+            <input type="radio" id="json" name="comp_type" value="json">
+            <label for="javascript">JSON</label>
+        </td>
+        <td></td>
+      </tr> -->
+      <tr>
+        <td colspan="2">
+          <p>
+            <label for="custom-delimiter">Custom String Delimiter:</label>
+            <input type="text" id="custom-delimiter" name="custom-delimiter" maxlength="3" size="3">
+        </td>
+        <td></td>
+      </tr>
       <tr>
         <td>
-          Left &#8680;<br>
-          <textarea cols='40' rows='8' id='left-calls'></textarea>
+          <!-- Left &#8680;<br> -->
+          <textarea cols='36' rows='7' id='left-calls'
+            placeholder="** Required **&#10;&#10;Enter LEFT text for parsing and/or comparison"></textarea>
         </td>
-        <td>Right &#8680;<br>
-          <textarea cols='40' rows='8' id='right-calls'></textarea>
+        <td>
+          <!-- Right &#8680;<br> -->
+          <textarea cols='36' rows='7' id='right-calls'
+            placeholder="** Optional **&#10;&#10;Enter RIGHT text for comparison"></textarea>
         </td>
         <td>
           <table class='legend'>
@@ -73,25 +96,25 @@
               <th>Show?</th>
             </tr>
             <tr>
-              <td class='exact'>Exact: Result matches exactly in both calls</td>
+              <td class='exact'>Exact: Left and right are identical</td>
               <td align="center">
                 <input type='checkbox' onclick="javascript:showHide('exact', this)" checked>
               </td>
             </tr>
             <tr>
-              <td class='exists'>Exists: Result is present, but differences exist between the calls</td>
+              <td class='exists'>Exists: Left and right have different values</td>
               <td align="center">
                 <input type='checkbox' onclick="javascript:showHide('exists', this)" checked>
               </td>
             </tr>
             <tr>
-              <td class='left-only'>Left Only: Result is only present on the left side</td>
+              <td class='left-only'>Left Only: Only present in left</td>
               <td align="center">
                 <input type='checkbox' onclick="javascript:showHide('left-only', this)" checked>
               </td>
             </tr>
             <tr>
-              <td class='right-only'>Right Only: Result is only present on the right side</td>
+              <td class='right-only'>Right Only: Only present in right</td>
               <td align="center">
                 <input type='checkbox' onclick="javascript:showHide('right-only', this)" checked>
               </td>
@@ -108,9 +131,9 @@
         <td align='right'>
           <!-- Download Results (csv):&nbsp; -->
           <!-- <input type="checkbox" id="download" title="Download comparison results as a CSV file">&nbsp;&nbsp; -->
-          <input type='submit' id='form-submit' value='Submit' title="Form Submit Button">
+          <input type='submit' id='form-submit' value='Compare' title="Compare Values">
           &nbsp;&nbsp;
-          <input type="reset" value='Reset Form' title="Form Reset Button" onclick="javascript:pageActions.formReset();">
+          <input type="reset" value='Reset' title="Reset" onclick="javascript:pageActions.formReset();">
 
         </td>
       </tr>
@@ -137,6 +160,9 @@
         right: document.getElementById('right-calls').value
       }
 
+      // let compType = document.querySelector('input[name="comp_type"]:checked').value || "";
+      let customDelimiter = document.getElementById('custom-delimiter').value || "";
+
       var res = document.getElementById('results');
       res.innerHTML = "";
 
@@ -153,10 +179,14 @@
       let right = test.right ? test.right.split("\n") : test.left.split("\n");
 
       for (var i = 0, max = left.length; i < max; i++) {
-        output.push(comparePair({
-          left: left[i],
-          right: right[i]
-        }));
+        if (left[i] !== "" && left[i] !== null) {
+          output.push(comparePair({
+            left: left[i],
+            right: right[i],
+            customDelimiter: customDelimiter
+            // compType: compType
+          }));
+        }
       };
 
       output.forEach(function (item) {
@@ -170,7 +200,7 @@
           res.appendChild(document.createElement('hr'));
         }
       });
-      
+
       // var results = compare.exec(ctl, chl, incl_excl_params, paramFilter);
       var checkboxes = document.querySelectorAll("table.legend input[type='checkbox']");
       for (var i = 0, maxi = checkboxes.length; i < maxi; i++) {
