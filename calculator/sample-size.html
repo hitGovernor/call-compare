@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sample Size Calculator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: Arial, sans-serif; background: #f7f7f7; margin: 0; padding: 0; }
+        .container { max-width: 700px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 24px; }
+        h1 { font-size: 1.3em; margin-bottom: 1em; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; margin-bottom: 4px; font-weight: bold; }
+        input[type="number"] { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        .row { display: flex; flex-wrap: wrap; gap: 16px; }
+        .row > div, .row > .form-group { flex: 1; min-width: 220px; }
+        .output-wrapper, .confidence-table-label-container { margin-top: 18px; }
+        output { min-width: 80px; display: inline-block; text-align: right; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        th, td { padding: 8px; text-align: center; border-bottom: 1px solid #eee; }
+        th { background: #f0f0f0; }
+        .txt-center { text-align: center; }
+        .add-padding { padding: 8px; }
+        .add-margin-bottom { margin-bottom: 16px; }
+        .calculate-button-wrapper { text-align: right; margin-top: 18px; }
+        button { padding: 8px 18px; background: #0073e6; color: #fff; border: none; border-radius: 4px; font-size: 1em; cursor: pointer; }
+        button:hover { background: #005bb5; }
+        .input-notes label { display: block; font-weight: normal; margin-bottom: 6px; }
+        .segment, .segment-white { background: #fafafa; border-radius: 6px; padding: 16px; }
+        .confidence-output-table th, .confidence-output-table td { background: #fff; }
+        .remove-margin-bottom { margin-bottom: 0; }
+        .second-row { margin-top: 24px; }
+        .bg-cararra { background: #f7f7f7; }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</head>
+<body>
+<div class="container" id="ssCalc">
+    <h1>Sample Size Calculator</h1>
+    <form id="sample-size-form" autocomplete="off">
+        <div class="row">
+            <div class="form-group">
+                <label for="currentResRate">Conversion Rate*</label>
+                <input type="number" class="form-control" name="currentResRate" id="currentResRate" min="0" max="100" step="any">
+            </div>
+            <div class="form-group">
+                <label for="estIndexLift">Goal Lift Index*</label>
+                <input type="number" class="form-control" name="estIndexLift" id="estIndexLift" min="0" step="any">
+            </div>
+        </div>
+        <div class="form-group calculate-button-wrapper">
+            <button id="tButton" type="submit">CALCULATE</button>
+        </div>
+    </form>
+
+    <div class="input-notes segment-white add-margin-bottom">
+        <label>
+            * Conversion Rate: To calculate conversion rate, divide the number of KPI success
+            events by the number of unique visitors. For instance, orders/visitors.
+        </label>
+        <label>
+            * Goal Lift Index: An index of 100 means flat results, or no lift.
+            An index of 110 means a 10% increase from the current response rate.
+            Enter the desired lift index you would like to see with your test.
+        </label>
+        <label class="remove-margin-bottom">
+            * Have more than two recipes? No problem! Just multiply the necessary sample size per recipe by the number of recipes in your experiment.
+        </label>
+    </div>
+
+    <div class="second-row segment">
+        <table class="table w-100">
+            <thead>
+            <tr>
+                <th></th>
+                <th>Sample Size per Recipe</th>
+                <th>Response Rate per Recipe</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Control</td>
+                <td class="txt-center add-padding">
+                    <output id="controlSample"></output>
+                </td>
+                <td class="txt-center add-padding">
+                    <output id="controlResRate"></output>
+                </td>
+            </tr>
+            <tr>
+                <td>Test Group</td>
+                <td class="txt-center add-padding">
+                    <output id="testSample"></output>
+                </td>
+                <td class="txt-center add-padding">
+                    <output id="testResRate"></output>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="segment">
+        <div class="confidence-table-label-container">
+            <label>95% confident that roll-out results would be between</label>
+        </div>
+        <table class="table confidence-output-table w-100">
+            <thead>
+            <tr>
+                <th>Difference</th>
+                <th>Index</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td class="txt-center add-padding">
+                    <output id="conDiffA"></output>
+                </td>
+                <td class="txt-center add-padding">
+                    <output id="conIndexA"></output>
+                </td>
+            </tr>
+            <tr>
+                <td class="txt-center add-padding">
+                    <output id="conDiffB"></output>
+                </td>
+                <td class="txt-center add-padding">
+                    <output id="conIndexB"></output>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="segment-white" style="margin-top:18px; display:flex; justify-content:space-between; align-items:center;">
+        <label class="remove-margin">2 x Standard Deviation:</label>
+        <output id="standardDeviation" type="number"></output>
+    </div>
+</div>
+
+<script>
+$(function () {
+    // Inputs
+    var curResRate = $('#currentResRate');
+    var indexLift = $('#estIndexLift');
+    var testButton = $('#tButton');
+
+    // Outputs
+    var controlSample = $('#controlSample');
+    var controlResRate = $('#controlResRate');
+    var testSample = $('#testSample');
+    var testResRate = $('#testResRate');
+    var conDiffA = $('#conDiffA');
+    var conIndexA = $('#conIndexA');
+    var conDiffB = $('#conDiffB');
+    var conIndexB = $('#conIndexB');
+    var standardDevFact = $('#standardDeviation');
+
+    function calculate() {
+        var baseRate = parseFloat(curResRate.val());
+        var liftIndex = parseFloat(indexLift.val());
+
+        if (isNaN(baseRate) || isNaN(liftIndex) || baseRate <= 0 || liftIndex < 100) {
+            // Clear outputs if invalid
+            controlSample.text('');
+            controlResRate.text('');
+            testSample.text('');
+            testResRate.text('');
+            conDiffA.text('');
+            conIndexA.text('');
+            conDiffB.text('');
+            conIndexB.text('');
+            standardDevFact.text('');
+            return;
+        }
+
+        var controlRR = baseRate / 100;
+        var testRR = controlRR * (liftIndex / 100);
+
+        // Sample size calculation
+        var testA = testRR * (1 - testRR) + controlRR * (1 - controlRR);
+        var testB = (testRR - controlRR) / 3.6048;
+        var testC = Math.pow(testB, 2);
+        var sampleSize = testA / testC;
+
+        // Outputs
+        controlSample.text(Math.round(sampleSize));
+        testSample.text(Math.round(sampleSize));
+        controlResRate.text((controlRR * 100).toFixed(2) + "%");
+        testResRate.text((testRR * 100).toFixed(2) + "%");
+
+        // Test difference and index
+        var testDiff = (testRR - controlRR) * 100;
+        var testIndex = Math.trunc(testRR / controlRR * 100);
+
+        // 2 x Standard Deviation
+        var standardDev = Math.sqrt(Math.abs((testRR) * (1 - testRR) / sampleSize + (controlRR * (1 - controlRR) / sampleSize))) * 1.96;
+        var finalSD = (standardDev * 100).toFixed(1);
+        standardDevFact.text(finalSD);
+
+        // Confidence intervals
+        var calcCDiffA = testDiff - finalSD;
+        conDiffA.text(calcCDiffA.toFixed(2));
+        var calcConIndexA = (((calcCDiffA / 100) / controlRR) + 1) * 100;
+        conIndexA.text(calcConIndexA.toFixed(0));
+
+        var calcCDiffB = testDiff + parseFloat(finalSD);
+        conDiffB.text(calcCDiffB.toFixed(2));
+        var calcConIndexB = (((calcCDiffB / 100) / controlRR) + 1) * 100;
+        conIndexB.text(calcConIndexB.toFixed(0));
+    }
+
+    $('#sample-size-form').on('submit', function (event) {
+        event.preventDefault();
+        calculate();
+    });
+});

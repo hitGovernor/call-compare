@@ -1,0 +1,276 @@
+<!-- Stand-alone HTML version of proportions.twig -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Proportions Calculator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Simple CSS for layout and clarity -->
+    <style>
+        body { font-family: Arial, sans-serif; background: #f7f7f7; margin: 0; padding: 0; }
+        .container { max-width: 700px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 24px; }
+        h1 { font-size: 1.5em; margin-bottom: 1em; }
+        .row { display: flex; flex-wrap: wrap; margin-bottom: 16px; }
+        .col-half { flex: 1 1 50%; padding: 8px; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; margin-bottom: 4px; font-weight: bold; }
+        input[type="number"] { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 10px 24px; background: #0073e6; color: #fff; border: none; border-radius: 4px; font-size: 1em; cursor: pointer; }
+        button:hover { background: #005bb5; }
+        .results, .confidence { margin-top: 24px; background: #fafafa; border-radius: 6px; padding: 16px; }
+        .results label, .confidence label { font-weight: normal; }
+        .result-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 8px 0; }
+        .result-row:last-child { border-bottom: none; }
+        output { min-width: 80px; display: inline-block; text-align: right; }
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        th, td { padding: 8px; text-align: center; border-bottom: 1px solid #eee; }
+        th { background: #f0f0f0; }
+        em { color: #555; }
+    </style>
+    <!-- jQuery CDN for simplicity -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <h1>Proportions Calculator</h1>
+    <form id="sigproportions-calculator-form" autocomplete="off">
+        <div class="row">
+            <div class="col-half form-group">
+                <label for="recipe-sample-size-input">Recipe Sample Size</label>
+                <input type="number" id="recipe-sample-size-input" name="recipe-sample-size-input" min="1" required>
+            </div>
+            <div class="col-half form-group">
+                <label for="control-sample-size-input">Control Sample Size</label>
+                <input type="number" id="control-sample-size-input" name="control-sample-size-input" min="1" required>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-half form-group">
+                <label for="recipe-response-pct-input">Recipe Response %</label>
+                <input type="number" id="recipe-response-pct-input" name="recipe-response-pct-input" min="0" max="100" step="any" required>
+            </div>
+            <div class="col-half form-group">
+                <label for="control-response-pct-input">Control Response %</label>
+                <input type="number" id="control-response-pct-input" name="control-response-pct-input" min="0" max="100" step="any" required>
+            </div>
+        </div>
+        <div style="text-align:right;">
+            <button id="calculator-submit" type="submit">CALCULATE</button>
+        </div>
+    </form>
+
+    <div class="results">
+        <div class="result-row">
+            <label>Z-score:</label>
+            <output id="zscore-output"></output>
+        </div>
+        <div class="result-row">
+            <label>Statistically Significant:</label>
+            <output id="stat-sig-output"></output>
+        </div>
+        <div class="result-row">
+            <label>Raw Difference:</label>
+            <output id="difference-output"></output>
+        </div>
+        <div class="result-row">
+            <label>Index to Control:</label>
+            <output id="idc-output"></output>
+        </div>
+    </div>
+
+    <div class="confidence">
+        <label>95% Confidence Interval</label>
+        <table>
+            <thead>
+            <tr>
+                <th></th>
+                <th>Min</th>
+                <th>Max</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Raw Percent Difference</td>
+                <td><output id="start-a-ouput"></output></td>
+                <td><output id="end-a-output"></output></td>
+            </tr>
+            <tr>
+                <td>Variant Recipe Response Rate</td>
+                <td><output id="start-b-ouput"></output></td>
+                <td><output id="end-b-output"></output></td>
+            </tr>
+            </tbody>
+        </table>
+        <p style="font-size: 12px; line-height: 1.5; margin-top: 12px;">
+            <em>
+                95% confidence interval means that we are 95% confident the variant mean falls
+                between these two values.
+            </em>
+        </p>
+    </div>
+</div>
+
+<script>
+    function isFloat(num) {
+        return !Number.isNaN(parseFloat(num));
+    }
+
+    var sigproportions = {
+        difference: function(state) {
+            var result;
+            if (state.recipeResponsePct && state.controlResponsePct) {
+                result = state.recipeResponsePct - state.controlResponsePct;
+            }
+            return isFloat(result) ? result : 0;
+        },
+
+        indexToControl: function(state) {
+            if (state.controlResponsePct === 0) return 0;
+            var result = state.recipeResponsePct / state.controlResponsePct * 100;
+            return isFloat(result) ? result : 0;
+        },
+
+        standardDeviation: function(state){
+            if (
+                Number.isNaN(parseFloat(state.recipeResponsePct)) ||
+                Number.isNaN(parseFloat(state.controlResponsePct)) ||
+                Number.isNaN(parseFloat(state.recipeSampleSize)) ||
+                Number.isNaN(parseFloat(state.controlSampleSize))
+            ) {
+                return 0;
+            }
+            var magicNumber =
+                state.recipeResponsePct *
+                (1 - state.recipeResponsePct) /
+                state.recipeSampleSize +
+                state.controlResponsePct *
+                (1 - state.controlResponsePct) /
+                state.controlSampleSize;
+
+            var result = Math.sqrt(magicNumber) * 1.96;
+            return isFloat(result) ? result : 0;
+        },
+
+        standardDeviation_calc: function(state) {
+            if (
+                Number.isNaN(parseFloat(state.recipeResponsePct)) ||
+                Number.isNaN(parseFloat(state.controlResponsePct)) ||
+                Number.isNaN(parseFloat(state.recipeSampleSize)) ||
+                Number.isNaN(parseFloat(state.controlSampleSize))
+            ) {
+                return 0;
+            }
+            var magicNumber = Math.sqrt(
+                state.recipeResponsePct *
+                (1 - state.recipeResponsePct) /
+                state.recipeSampleSize +
+                state.controlResponsePct *
+                (1 - state.controlResponsePct) /
+                state.controlSampleSize
+            );
+
+            var result = state.pctDifference / magicNumber;
+            return isFloat(result) ? result : 0;
+        },
+
+        zedScore: function(state) {
+            var result = Math.abs(state.standardDeviation_calc);
+            return isFloat(result) ? result : 0;
+        },
+
+        rangeStartA: function(state) {
+            var result = state.pctDifference - state.standardDeviation;
+            return isFloat(result) ? result : 0;
+        },
+
+        rangeEndA: function(state) {
+            var result = state.pctDifference + state.standardDeviation;
+            return isFloat(result) ? result : 0;
+        },
+        rangeStartB: function(state) {
+            if (state.controlResponsePct === 0) return 0;
+            var result = (state.rangeStartA / state.controlResponsePct + 1) * 100;
+            return isFloat(result) ? result : 0;
+        },
+
+        rangeEndB: function(state) {
+            if (state.controlResponsePct === 0) return 0;
+            var result = (state.rangeEndA / state.controlResponsePct + 1) * 100;
+            return isFloat(result) ? result : 0;
+        },
+
+        isSignificant: function(state) {
+            var result = "NO";
+            if (Math.abs(state.standardDeviation_calc) > 1.96) {
+                result = "YES";
+            }
+            return result;
+        }
+    };
+
+    $(function() {
+        var state = {
+            recipeSampleSize: 0,
+            recipeResponsePct: 0,
+            controlSampleSize: 0,
+            controlResponsePct: 0,
+            pctDifference: 0,
+            indexToControl: 0,
+            isSignificant: "",
+            standardDeviation: 0,
+            standardDeviation_calc: 0,
+            rangeStartA: 0,
+            rangeEndA: 0,
+            rangeStartB: 0,
+            rangeEndB: 0,
+            zedScore: 0,
+        };
+
+        // Update state on input change
+        $("#sigproportions-calculator-form input").on("input", function() {
+            var inputName = this.id;
+            var inputVal = parseFloat(this.value);
+            if (Number.isNaN(inputVal)) return;
+
+            if (inputName === "recipe-sample-size-input") {
+                state.recipeSampleSize = inputVal;
+            }
+            else if(inputName === "control-sample-size-input") {
+                state.controlSampleSize = inputVal;
+            }
+            else if(inputName === "recipe-response-pct-input") {
+                state.recipeResponsePct = inputVal/100;
+            }
+            else if(inputName === "control-response-pct-input") {
+                state.controlResponsePct = inputVal/100;
+            }
+        });
+
+        // Prevent form submission from refreshing the page
+        $("#sigproportions-calculator-form").on("submit", function(event) {
+            event.preventDefault();
+
+            state.pctDifference = sigproportions.difference(state);
+            state.indexToControl = sigproportions.indexToControl(state);
+            state.standardDeviation = sigproportions.standardDeviation(state);
+            state.standardDeviation_calc = sigproportions.standardDeviation_calc(state);
+            state.zedScore = sigproportions.zedScore(state);
+            state.rangeStartA = sigproportions.rangeStartA(state);
+            state.rangeEndA = sigproportions.rangeEndA(state);
+            state.rangeStartB = sigproportions.rangeStartB(state);
+            state.rangeEndB = sigproportions.rangeEndB(state);
+            state.isSignificant = sigproportions.isSignificant(state);
+
+            // Output results
+            $("#difference-output").val((state.pctDifference * 100).toFixed(2) + " %");
+            $("#idc-output").val(Math.round(state.indexToControl));
+            $("#stat-sig-output").val(state.isSignificant)
+                .css("color", state.isSignificant === "YES" ? "green" : "red");
+            $("#zscore-output").val(state.zedScore.toPrecision(4));
+            $("#start-a-ouput").val((state.rangeStartA * 100).toFixed(2) + " %");
+            $("#end-a-output").val((state.rangeEndA * 100).toFixed(2) + " %");
+            $("#start-b-ouput").val(state.rangeStartB.toPrecision(4));
+            $("#end-b-output").val(state.rangeEndB.toPrecision(4));
+        });
+    });
+</script>
