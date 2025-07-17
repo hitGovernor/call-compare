@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi-Square Calculator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: Arial, sans-serif; background: #f7f7f7; margin: 0; padding: 0; }
+        .container { max-width: 700px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 24px; }
+        h1 { font-size: 1.5em; margin-bottom: 1em; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; margin-bottom: 4px; font-weight: bold; }
+        select, input[type="number"] { padding: 6px; border: 1px solid #ccc; border-radius: 4px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        th, td { padding: 8px; text-align: center; border-bottom: 1px solid #eee; }
+        th { background: #f0f0f0; }
+        .input-row input { width: 60px; }
+        button { padding: 8px 18px; background: #0073e6; color: #fff; border: none; border-radius: 4px; font-size: 1em; cursor: pointer; }
+        button:hover { background: #005bb5; }
+        .calculate-button-wrapper { text-align: right; margin-top: 16px; }
+        #validation-message { color: #d00; display: block; margin-top: 8px; min-height: 18px; }
+        .outputs { margin-top: 32px; background: #fafafa; border-radius: 6px; padding: 16px; }
+        .outputs th { background: #f0f0f0; }
+        .outputs td { text-align: left; }
+        .add-remove-row { margin-bottom: 12px; }
+        .add-remove-row button { margin-left: 4px; margin-right: 4px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Chi-Square Calculator</h1>
+    <form id="chi-squared-form" autocomplete="off">
+        <div class="form-group">
+            <label for="confidence-level">Choose Confidence Level %</label>
+            <select id="confidence-level">
+                <option>97.5</option>
+                <option>95</option>
+                <option>90</option>
+            </select>
+        </div>
+        <div class="add-remove-row">
+            <span>Rows</span>
+            <button id="add-row" type="button">+</button>
+            <button id="delete-row" type="button" style="visibility:hidden;">-</button>
+        </div>
+        <table id="grid">
+            <thead>
+            <tr>
+                <th>Successes</th>
+                <th>Failures</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="control input-row">
+                <td><small>Control:</small> <input min="5" type="number" value=""></td>
+                <td><small>Control:</small> <input min="5" type="number" value=""></td>
+            </tr>
+            <tr class="recipe input-row">
+                <td><small>Recipe:</small> <input min="5" type="number" value=""></td>
+                <td><small>Recipe:</small> <input min="5" type="number" value=""></td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="calculate-button-wrapper">
+            <button id="chi_square-calculate-button" type="button">CALCULATE</button>
+        </div>
+        <small id="validation-message"></small>
+    </form>
+
+    <div class="outputs">
+        <table id="chi-outputs">
+            <thead>
+            <tr>
+                <th colspan="2">Outputs</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Degrees of Freedom:</td>
+                <td><span id="deg_of_freedom"></span></td>
+            </tr>
+            <tr>
+                <td>Chi Square Statistic:</td>
+                <td><span id="wip_sum_of_bits"></span></td>
+            </tr>
+            <tr>
+                <td>p value:</td>
+                <td><span id="chi_sq_statistic"></span></td>
+            </tr>
+            <tr>
+                <td>Statistically Significant:</td>
+                <td><span id="p_less_than_alpha"></span></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Templates for dynamic row/cell creation -->
+<template id="template-tr">
+    <tr class="recipe input-row"></tr>
+</template>
+<template id="template-cell">
+    <td><small>Recipe:</small> <input min="5" type="number" value=""></td>
+</template>
+
+<script>
+(function () {
+    var grid = document.querySelector('#grid');
+    var theform = document.querySelector('#chi-squared-form');
+    var validationMessage = document.querySelector('#validation-message');
+    var calculate_btn = document.querySelector('#chi_square-calculate-button');
+    var addRowBtn = document.querySelector('#add-row');
+    var deleteRowBtn = document.querySelector('#delete-row');
+    var confidenceSelect = document.querySelector('#confidence-level');
+
+    const MAX_ROWS = 6;
+    const MIN_ROWS = 2;
+    const MAX_COLS = 2;
+    const MIN_COLS = 2;
+
+    var inputValues = [], expecteds = [], rowSums = [], columnSums = [], tableSum = 0, wip_sum_of_bits = 0;
+    var deg_of_freedom = 0, p_less_than_alpha = false;
+
+    function reinit() {
+        inputValues = [];
+        expecteds = [];
+        rowSums = [];
+        columnSums = [];
+        tableSum = 0;
+    }
+
+    function buildModel() {
+        reinit();
+        var rows = grid.querySelectorAll('tbody tr');
+        var currentModel = { inputValues: [], currentFormInputLength: 0 };
+        for (var r = 0; r < rows.length; r++) {
+            var wip_row = [];
+            var inputs = rows[r].querySelectorAll('td > input');
+            for (var c = 0; c < inputs.length; c++) {
+                wip_row.push(Number.parseInt(inputs[c].value));
+            }
+            currentModel.inputValues.push(wip_row);
+        }
+        currentModel.currentFormInputLength = grid.querySelectorAll('tbody tr td input').length;
+        return currentModel;
+    }
+
+    function validateInputs(model) {
+        validationMessage.textContent = "";
+        grid.style.border = "";
+        var currValue = 0;
+        var total_cells_below_minimum = 0;
+        var percentageBelowMin = 0;
+
+        for (var p = 0; p < model.inputValues.length; p++) {
+            for (var c = 0; c < model.inputValues[p].length; c++) {
+                currValue = model.inputValues[p][c];
+                if (window.isNaN(parseInt(currValue))) {
+                    currValue = 0;
+                    grid.style.border = "2px solid red";
+                    validationMessage.textContent = "Each box must contain a number, at least 0.";
+                }
+                if (currValue < 5) {
+                    total_cells_below_minimum += 1;
+                }
+            }
+        }
+        percentageBelowMin = total_cells_below_minimum / model.currentFormInputLength;
+
+        if (percentageBelowMin > 0.2) {
+            grid.style.border = "2px solid red";
+            validationMessage.textContent += "\n80% of the boxes must have more than 5 observations.";
+        }
+
+        if (validationMessage.textContent !== '') {
+            return false;
+        }
+        return true;
+    }
+
+    function buildChiSquareArguments() {
+        var currentModel = buildModel();
+        if (!validateInputs(currentModel)) {
+            return;
+        }
+        var confidence_level = (1 - Number.parseFloat(confidenceSelect.selectedOptions[0].value) * 0.01).toFixed(3);
+
+        // Calculate sums
+        var rows = currentModel.inputValues;
+        tableSum = 0;
+        for (var r = 0; r < rows.length; r++) {
+            for (var c = 0; c < rows[r].length; c++) {
+                tableSum += Number.parseInt(rows[r][c]);
+            }
+        }
+        rowSums = [];
+        for (var r = 0; r < rows.length; r++) {
+            var wip_sum = 0;
+            for (var c = 0; c < rows[r].length; c++) {
+                wip_sum += Number.parseInt(rows[r][c]);
+            }
+            rowSums.push(wip_sum);
+        }
+        columnSums = [];
+        for (var c = 0; c < rows[0].length; c++) {
+            var wip_sum = 0;
+            for (var r = 0; r < rows.length; r++) {
+                wip_sum += Number.parseInt(rows[r][c]);
+            }
+            columnSums.push(wip_sum);
+        }
+        expecteds = [];
+        for (var r = 0; r < rowSums.length; r++) {
+            var wip_array = [];
+            for (var c = 0; c < columnSums.length; c++) {
+                wip_array.push(rowSums[r] * columnSums[c] / tableSum);
+            }
+            expecteds.push(wip_array);
+        }
+
+        deg_of_freedom = (rows.length - 1) * (rows[0].length - 1);
+
+        var chi_sq_statistic = x_sq(expecteds, rows, deg_of_freedom);
+        p_less_than_alpha = (chi_sq_statistic < confidence_level);
+
+        outputResults({
+            deg_of_freedom: deg_of_freedom,
+            wip_sum_of_bits: wip_sum_of_bits.toFixed(4),
+            chi_sq_statistic: chi_sq_statistic.toFixed(4),
+            p_less_than_alpha: (p_less_than_alpha === true ? 'YES' : 'NO')
+        });
+    }
+
+    function outputResults(results) {
+        document.getElementById('deg_of_freedom').textContent = results.deg_of_freedom;
+        document.getElementById('wip_sum_of_bits').textContent = results.wip_sum_of_bits;
+        document.getElementById('chi_sq_statistic').textContent = results.chi_sq_statistic;
+        var sig = document.getElementById('p_less_than_alpha');
+        sig.textContent = results.p_less_than_alpha;
+        sig.style.color = (results.p_less_than_alpha === 'YES' ? "#2e9940" : '#ff0000');
+    }
+
+    function get_p(test_statistic, dof) {
+        var p_value = test_statistic >= (-1.37266 + 1.06807 * Math.sqrt(dof)) ** 2 ?
+            (1 / 10) ** (((Math.sqrt(test_statistic) - (-1.37266 + 1.06807 * Math.sqrt(dof))) / (
+            2.13161 - 0.04589 * Math.sqrt(dof))) ** 2) : 1;
+        return p_value;
+    }
+
+    function x_sq(expecteds, observeds, d_o_f) {
+        wip_sum_of_bits = 0;
+        if (expecteds.length !== observeds.length && expecteds[0].length !== observeds.length) {
+            return;
+        }
+        for (var r = 0; r < expecteds.length; r++) {
+            for (var c = 0; c < observeds[0].length; c++) {
+                var current_chi_sq_bit = ((observeds[r][c] - expecteds[r][c]) ** 2 / expecteds[r][c]);
+                wip_sum_of_bits += current_chi_sq_bit;
+            }
+        }
+        return get_p(wip_sum_of_bits, d_o_f);
+    }
+
+    // Add/remove row logic
+    addRowBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        var tbody = grid.querySelector('tbody');
+        var trTemplate = document.getElementById('template-tr');
+        var cellTemplate = document.getElementById('template-cell');
+        var newRow = document.importNode(trTemplate.content, true);
+        for (var i = 0; i < MAX_COLS; i++) {
+            newRow.appendChild(document.importNode(cellTemplate.content, true));
+        }
+        tbody.appendChild(newRow);
+        updateRowButtons();
+    });
+
+    deleteRowBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        var tbody = grid.querySelector('tbody');
+        var rows = tbody.querySelectorAll('tr');
+        if (rows.length > MIN_ROWS) {
+            tbody.removeChild(rows[rows.length - 1]);
+        }
+        updateRowButtons();
+    });
+
+    function updateRowButtons() {
+        var rowCount = grid.querySelectorAll('tbody tr').length;
+        deleteRowBtn.style.visibility = rowCount > MIN_ROWS ? 'visible' : 'hidden';
+        addRowBtn.style.visibility = rowCount < MAX_ROWS ? 'visible' : 'hidden';
+    }
+    updateRowButtons();
+
+    // Prevent form submission from refreshing the page
+    theform.addEventListener('submit', function(e) {
+        e.preventDefault();
+        buildChiSquareArguments();
+    });
+
+    calculate_btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        buildChiSquareArguments();
+    });
+
+})();
+</script>
+</body>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Power Calculator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: Arial, sans-serif; background: #f7f7f7; margin: 0; padding: 0; }
+        .container { max-width: 500px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 24px; }
+        h1 { font-size: 1.3em; margin-bottom: 1em; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; margin-bottom: 4px; font-weight: bold; }
+        input[type="number"], select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        .row { display: flex; gap: 16px; }
+        .row > div { flex: 1; }
+        .output-wrapper { margin-top: 18px; display: flex; align-items: center; gap: 10px; }
+        output { min-width: 80px; display: inline-block; text-align: right; font-weight: bold; }
+        .calculate-button-wrapper { text-align: right; margin-top: 18px; }
+        button { padding: 8px 18px; background: #0073e6; color: #fff; border: none; border-radius: 4px; font-size: 1em; cursor: pointer; }
+        button:hover { background: #005bb5; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Power Calculator</h1>
+    <form id="power-calculator-form" autocomplete="off">
+        <div class="form-group">
+            <div class="row">
+                <div>
+                    <label for="control-audience-input">Control Audience:</label>
+                    <input id="control-audience-input" name="control-sample-size-input" type="number" step="1" min="1" value="0"/>
+                </div>
+                <div>
+                    <label for="challenger-audience-input">Challenger Audience:</label>
+                    <input id="challenger-audience-input" name="recipe-sample-size-input" type="number" step="1" min="1" value="0"/>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div>
+                    <label for="control-mean-input">Control Response:</label>
+                    <input id="control-mean-input" name="control-response-pct-input" type="number" step="1" min="0" value="0"/>
+                </div>
+                <div>
+                    <label for="challenger-mean-input">Challenger Response:</label>
+                    <input id="challenger-mean-input" name="recipe-response-pct-input" type="number" step="1" min="0" value="0"/>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="zScore-options">Confidence Z-Value:</label>
+            <select name="confidence-value-input" id="zScore-options">
+                <option value="80">80%</option>
+                <option value="85">85%</option>
+                <option value="90">90%</option>
+                <option value="95">95%</option>
+            </select>
+        </div>
+        <div class="output-wrapper">
+            <label for="power-output">Power:</label>
+            <output id="power-output"></output>
+        </div>
+        <div class="calculate-button-wrapper">
+            <button id="power-calculate-button" type="submit">CALCULATE</button>
+        </div>
+    </form>
+</div>
+<script>
+function powerFunction(){
+    let controlResponse = parseFloat(document.getElementById('control-mean-input').value);
+    let challengerResponse = parseFloat(document.getElementById('challenger-mean-input').value);
+    let controlAudience = parseFloat(document.getElementById('control-audience-input').value);
+    let challengerAudience = parseFloat(document.getElementById('challenger-audience-input').value);
+    let confidenceValue = document.getElementById('zScore-options').value;
+
+    if (
+        isNaN(controlResponse) || isNaN(challengerResponse) ||
+        isNaN(controlAudience) || isNaN(challengerAudience) ||
+        controlAudience <= 0 || challengerAudience <= 0
+    ) {
+        return 0;
+    }
+
+    let controlMean = controlResponse / controlAudience;
+    let challengerMean = challengerResponse / challengerAudience;
+
+    function conversion(zScore){
+        let valueArray = [1.2815, 1.4394, 1.645, 1.96];
+        let confidenceArray = ['80', '85', '90', '95'];
+        for(let i = 0; i < confidenceArray.length; i++){
+            if(zScore === confidenceArray[i]){
+                return valueArray[i];
+            }
+        }
+        return 1.96; // default to 95%
+    }
+    function delta(x,y){ return Math.abs(x - y); }
+    function meanAudienceDiff(x,y){ return (x * (1 - x) / y); }
+    function deltaDiff(x,y,z){ return ((x)/(Math.sqrt((y)+(z)))); }
+    function pValue(w,x,y,z){ return((w + ((x / y) * z))/(1 + (x / y))); }
+    function qValue(x){ return(1 - x); }
+    function valueOfSOrT(x){ return(1 / x); }
+    function num(t,u,v,w){
+        return(
+            ((Math.sqrt(pValue(t, u, v, w) * qValue(pValue(t, u, v, w)) * (valueOfSOrT(v) + valueOfSOrT(u)))) /
+            (Math.sqrt((meanAudienceDiff(t,v) + meanAudienceDiff(w,u)))))
+        );
+    }
+    function reduce(mean){ return mean * .1; }
+    function zScore(){
+        let x = delta(reduce(controlMean),reduce(challengerMean));
+        let y = meanAudienceDiff(reduce(controlMean),controlAudience);
+        let y1 = meanAudienceDiff(reduce(challengerMean),challengerAudience);
+        let z = conversion(confidenceValue);
+        let number = num(reduce(controlMean),challengerAudience,controlAudience,reduce(challengerMean));
+        return((deltaDiff(x, y, y1) - z) / number);
+    }
+    function ncdf(x, mean, std) {
+        x = (x - mean) / std;
+        var t = 1 / (1 + .2315419 * Math.abs(x));
+        var d = .3989423 * Math.exp( -x * x / 2);
+        var prob = d * t * (.3193815 + t * ( -.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+        if( x > 0 ) prob = 1 - prob;
+        var ans =  prob * 100;
+        if(isNaN(ans) === false){
+            return parseFloat(ans);
+        }else{
+            return 0.00;
+        }
+    }
+    return ncdf(zScore(),0,1);
+}
+
+document.getElementById('power-calculator-form').addEventListener('submit', function(e){
+    e.preventDefault();
+    var result = powerFunction();
+    document.getElementById('power-output').value = result.toFixed(2) + '%';
