@@ -145,8 +145,14 @@ function powerFunction(){
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    document.getElementById('power-calculator-form').addEventListener('submit', function(e){
+    var form = document.getElementById('power-calculator-form');
+    form.addEventListener('submit', function(e){
         e.preventDefault();
+        // tracking for form submit
+        tracker.push({
+          event: 'form_submit',
+          form_name: form.id
+        });
         var result = powerFunction();
         document.getElementById('power-output').value = result.toFixed(2) + '%';
     });

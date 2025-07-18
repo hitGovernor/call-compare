@@ -260,8 +260,14 @@
         }
 
         // Prevent form submission from refreshing the page
-        document.getElementById("sigproportions-calculator-form").addEventListener("submit", function(event) {
+        var form = document.getElementById("sigproportions-calculator-form");
+        form.addEventListener("submit", function(event) {
             event.preventDefault();
+            // tracking for form submit
+            tracker.push({
+              event: 'form_submit',
+              form_name: form.id
+            });
 
             state.pctDifference = sigproportions.difference(state);
             state.indexToControl = sigproportions.indexToControl(state);

@@ -308,6 +308,11 @@
     // Prevent form submission from refreshing the page
     theform.addEventListener('submit', function(e) {
         e.preventDefault();
+        // tracking for form submit
+        tracker.push({
+          event: 'form_submit',
+          form_name: theform.id
+        });
         buildChiSquareArguments();
     });
 

@@ -101,6 +101,11 @@
 
         form.addEventListener('submit', function(event) {
             event.preventDefault();
+            // tracking for form submit
+            tracker.push({
+              event: 'form_submit',
+              form_name: form.id
+            });
             var side = document.querySelector('input[name="side"]:checked').value;
             var zScoreInputValue = zscoreInput.value;
             var zScore = side === 'two-sided'
