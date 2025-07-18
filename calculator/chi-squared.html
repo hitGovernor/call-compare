@@ -305,7 +305,9 @@
     updateRowButtons();
 
     // Prevent form submission from refreshing the page
-    document.getElementById("chi-squared-form").addEventListener('submit', function(e) {
+    var form = document.getElementById("chi-squared-form");
+    var calculate_btn = document.getElementById('chi_square-calculate-button');
+    form.addEventListener('submit', function(e) {
         e.preventDefault();
         // tracking for form submit
         tracker.push({
@@ -315,9 +317,10 @@
         buildChiSquareArguments();
     });
 
+    // Make calculate button submit the form
     calculate_btn.addEventListener('click', function(e) {
         e.preventDefault();
-        buildChiSquareArguments();
+        form.requestSubmit();
     });
 
 })();
