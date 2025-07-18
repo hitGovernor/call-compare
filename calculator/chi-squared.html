@@ -119,7 +119,6 @@
 <script>
 (function () {
     var grid = document.querySelector('#grid');
-    var theform = document.querySelector('#chi-squared-form');
     var validationMessage = document.querySelector('#validation-message');
     var calculate_btn = document.querySelector('#chi_square-calculate-button');
     var addRowBtn = document.querySelector('#add-row');
@@ -306,14 +305,22 @@
     updateRowButtons();
 
     // Prevent form submission from refreshing the page
-    theform.addEventListener('submit', function(e) {
+    var form = document.getElementById("chi-squared-form");
+    var calculate_btn = document.getElementById('chi_square-calculate-button');
+    form.addEventListener('submit', function(e) {
         e.preventDefault();
+        // tracking for form submit
+        tracker.push({
+          event: 'form_submit',
+          form_name: this.id
+        });
         buildChiSquareArguments();
     });
 
+    // Make calculate button submit the form
     calculate_btn.addEventListener('click', function(e) {
         e.preventDefault();
-        buildChiSquareArguments();
+        form.requestSubmit();
     });
 
 })();

@@ -222,6 +222,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('sample-size-form').addEventListener('submit', function (event) {
         event.preventDefault();
+        // tracking for form submit
+        tracker.push({
+          event: 'form_submit',
+          form_name: this.id
+        });
         calculate();
     });
 });
