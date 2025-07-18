@@ -4,6 +4,18 @@
     <meta charset="UTF-8">
     <title>Sample Size Calculator</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Google Tag Manager -->
+    <script>(function (w, d, s, l, i) {
+        w[l] = w[l] || []; w[l].push({
+            'gtm.start':
+                new Date().getTime(), event: 'gtm.js'
+        }); var f = d.getElementsByTagName(s)[0],
+            j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+                'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+    })(window, document, 'script', 'dataLayer', 'GTM-WB28SLN5');</script>
+    <!-- End Google Tag Manager -->
+
+    <script type="text/javascript" src="../script/tracker.js"></script>
     <style>
         body { font-family: Arial, sans-serif; background: #f7f7f7; margin: 0; padding: 0; }
         .container { max-width: 700px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 24px; }
@@ -31,7 +43,6 @@
         .second-row { margin-top: 24px; }
         .bg-cararra { background: #f7f7f7; }
     </style>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
 <body>
 <div class="container" id="ssCalc">
@@ -138,38 +149,38 @@
 </div>
 
 <script>
-$(function () {
+document.addEventListener('DOMContentLoaded', function () {
     // Inputs
-    var curResRate = $('#currentResRate');
-    var indexLift = $('#estIndexLift');
-    var testButton = $('#tButton');
+    var curResRate = document.getElementById('currentResRate');
+    var indexLift = document.getElementById('estIndexLift');
+    var testButton = document.getElementById('tButton');
 
     // Outputs
-    var controlSample = $('#controlSample');
-    var controlResRate = $('#controlResRate');
-    var testSample = $('#testSample');
-    var testResRate = $('#testResRate');
-    var conDiffA = $('#conDiffA');
-    var conIndexA = $('#conIndexA');
-    var conDiffB = $('#conDiffB');
-    var conIndexB = $('#conIndexB');
-    var standardDevFact = $('#standardDeviation');
+    var controlSample = document.getElementById('controlSample');
+    var controlResRate = document.getElementById('controlResRate');
+    var testSample = document.getElementById('testSample');
+    var testResRate = document.getElementById('testResRate');
+    var conDiffA = document.getElementById('conDiffA');
+    var conIndexA = document.getElementById('conIndexA');
+    var conDiffB = document.getElementById('conDiffB');
+    var conIndexB = document.getElementById('conIndexB');
+    var standardDevFact = document.getElementById('standardDeviation');
 
     function calculate() {
-        var baseRate = parseFloat(curResRate.val());
-        var liftIndex = parseFloat(indexLift.val());
+        var baseRate = parseFloat(curResRate.value);
+        var liftIndex = parseFloat(indexLift.value);
 
         if (isNaN(baseRate) || isNaN(liftIndex) || baseRate <= 0 || liftIndex < 100) {
             // Clear outputs if invalid
-            controlSample.text('');
-            controlResRate.text('');
-            testSample.text('');
-            testResRate.text('');
-            conDiffA.text('');
-            conIndexA.text('');
-            conDiffB.text('');
-            conIndexB.text('');
-            standardDevFact.text('');
+            controlSample.textContent = '';
+            controlResRate.textContent = '';
+            testSample.textContent = '';
+            testResRate.textContent = '';
+            conDiffA.textContent = '';
+            conIndexA.textContent = '';
+            conDiffB.textContent = '';
+            conIndexB.textContent = '';
+            standardDevFact.textContent = '';
             return;
         }
 
@@ -183,10 +194,10 @@ $(function () {
         var sampleSize = testA / testC;
 
         // Outputs
-        controlSample.text(Math.round(sampleSize));
-        testSample.text(Math.round(sampleSize));
-        controlResRate.text((controlRR * 100).toFixed(2) + "%");
-        testResRate.text((testRR * 100).toFixed(2) + "%");
+        controlSample.textContent = Math.round(sampleSize);
+        testSample.textContent = Math.round(sampleSize);
+        controlResRate.textContent = (controlRR * 100).toFixed(2) + "%";
+        testResRate.textContent = (testRR * 100).toFixed(2) + "%";
 
         // Test difference and index
         var testDiff = (testRR - controlRR) * 100;
@@ -195,22 +206,25 @@ $(function () {
         // 2 x Standard Deviation
         var standardDev = Math.sqrt(Math.abs((testRR) * (1 - testRR) / sampleSize + (controlRR * (1 - controlRR) / sampleSize))) * 1.96;
         var finalSD = (standardDev * 100).toFixed(1);
-        standardDevFact.text(finalSD);
+        standardDevFact.textContent = finalSD;
 
         // Confidence intervals
         var calcCDiffA = testDiff - finalSD;
-        conDiffA.text(calcCDiffA.toFixed(2));
+        conDiffA.textContent = calcCDiffA.toFixed(2);
         var calcConIndexA = (((calcCDiffA / 100) / controlRR) + 1) * 100;
-        conIndexA.text(calcConIndexA.toFixed(0));
+        conIndexA.textContent = calcConIndexA.toFixed(0);
 
         var calcCDiffB = testDiff + parseFloat(finalSD);
-        conDiffB.text(calcCDiffB.toFixed(2));
+        conDiffB.textContent = calcCDiffB.toFixed(2);
         var calcConIndexB = (((calcCDiffB / 100) / controlRR) + 1) * 100;
-        conIndexB.text(calcConIndexB.toFixed(0));
+        conIndexB.textContent = calcConIndexB.toFixed(0);
     }
 
-    $('#sample-size-form').on('submit', function (event) {
+    document.getElementById('sample-size-form').addEventListener('submit', function (event) {
         event.preventDefault();
         calculate();
     });
 });
+</script>
+</body>
+</html>

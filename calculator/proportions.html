@@ -5,6 +5,18 @@
     <meta charset="UTF-8">
     <title>Proportions Calculator</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Google Tag Manager -->
+    <script>(function (w, d, s, l, i) {
+        w[l] = w[l] || []; w[l].push({
+            'gtm.start':
+                new Date().getTime(), event: 'gtm.js'
+        }); var f = d.getElementsByTagName(s)[0],
+            j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+                'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+    })(window, document, 'script', 'dataLayer', 'GTM-WB28SLN5');</script>
+    <!-- End Google Tag Manager -->
+
+    <script type="text/javascript" src="../script/tracker.js"></script>
     <!-- Simple CSS for layout and clarity -->
     <style>
         body { font-family: Arial, sans-serif; background: #f7f7f7; margin: 0; padding: 0; }
@@ -27,8 +39,6 @@
         th { background: #f0f0f0; }
         em { color: #555; }
     </style>
-    <!-- jQuery CDN for simplicity -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
 <body>
 <div class="container">
@@ -208,7 +218,7 @@
         }
     };
 
-    $(function() {
+    document.addEventListener('DOMContentLoaded', function () {
         var state = {
             recipeSampleSize: 0,
             recipeResponsePct: 0,
@@ -227,27 +237,30 @@
         };
 
         // Update state on input change
-        $("#sigproportions-calculator-form input").on("input", function() {
-            var inputName = this.id;
-            var inputVal = parseFloat(this.value);
-            if (Number.isNaN(inputVal)) return;
+        var inputs = document.querySelectorAll("#sigproportions-calculator-form input");
+        for (var i = 0; i < inputs.length; i++) {
+            inputs[i].addEventListener("input", function() {
+                var inputName = this.id;
+                var inputVal = parseFloat(this.value);
+                if (Number.isNaN(inputVal)) return;
 
-            if (inputName === "recipe-sample-size-input") {
-                state.recipeSampleSize = inputVal;
-            }
-            else if(inputName === "control-sample-size-input") {
-                state.controlSampleSize = inputVal;
-            }
-            else if(inputName === "recipe-response-pct-input") {
-                state.recipeResponsePct = inputVal/100;
-            }
-            else if(inputName === "control-response-pct-input") {
-                state.controlResponsePct = inputVal/100;
-            }
-        });
+                if (inputName === "recipe-sample-size-input") {
+                    state.recipeSampleSize = inputVal;
+                }
+                else if(inputName === "control-sample-size-input") {
+                    state.controlSampleSize = inputVal;
+                }
+                else if(inputName === "recipe-response-pct-input") {
+                    state.recipeResponsePct = inputVal/100;
+                }
+                else if(inputName === "control-response-pct-input") {
+                    state.controlResponsePct = inputVal/100;
+                }
+            });
+        }
 
         // Prevent form submission from refreshing the page
-        $("#sigproportions-calculator-form").on("submit", function(event) {
+        document.getElementById("sigproportions-calculator-form").addEventListener("submit", function(event) {
             event.preventDefault();
 
             state.pctDifference = sigproportions.difference(state);
@@ -261,16 +274,18 @@
             state.rangeEndB = sigproportions.rangeEndB(state);
             state.isSignificant = sigproportions.isSignificant(state);
 
-            // Output results
-            $("#difference-output").val((state.pctDifference * 100).toFixed(2) + " %");
-            $("#idc-output").val(Math.round(state.indexToControl));
-            $("#stat-sig-output").val(state.isSignificant)
-                .css("color", state.isSignificant === "YES" ? "green" : "red");
-            $("#zscore-output").val(state.zedScore.toPrecision(4));
-            $("#start-a-ouput").val((state.rangeStartA * 100).toFixed(2) + " %");
-            $("#end-a-output").val((state.rangeEndA * 100).toFixed(2) + " %");
-            $("#start-b-ouput").val(state.rangeStartB.toPrecision(4));
-            $("#end-b-output").val(state.rangeEndB.toPrecision(4));
+            document.getElementById("difference-output").value = (state.pctDifference * 100).toFixed(2) + " %";
+            document.getElementById("idc-output").value = Math.round(state.indexToControl);
+            var statSigOutput = document.getElementById("stat-sig-output");
+            statSigOutput.value = state.isSignificant;
+            statSigOutput.style.color = state.isSignificant === "YES" ? "green" : "red";
+            document.getElementById("zscore-output").value = state.zedScore.toPrecision(4);
+            document.getElementById("start-a-ouput").value = (state.rangeStartA * 100).toFixed(2) + " %";
+            document.getElementById("end-a-output").value = (state.rangeEndA * 100).toFixed(2) + " %";
+            document.getElementById("start-b-ouput").value = state.rangeStartB.toPrecision(4);
+            document.getElementById("end-b-output").value = state.rangeEndB.toPrecision(4);
         });
     });
 </script>
+</body>
+</html>

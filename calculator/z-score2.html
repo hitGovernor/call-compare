@@ -4,6 +4,18 @@
     <meta charset="UTF-8">
     <title>Z-Score to Confidence Level Calculator</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Google Tag Manager -->
+    <script>(function (w, d, s, l, i) {
+        w[l] = w[l] || []; w[l].push({
+            'gtm.start':
+                new Date().getTime(), event: 'gtm.js'
+        }); var f = d.getElementsByTagName(s)[0],
+            j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+                'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+    })(window, document, 'script', 'dataLayer', 'GTM-WB28SLN5');</script>
+    <!-- End Google Tag Manager -->
+
+    <script type="text/javascript" src="../script/tracker.js"></script>
     <style>
         body { font-family: Arial, sans-serif; background: #f7f7f7; margin: 0; padding: 0; }
         .container { max-width: 400px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 24px; }
@@ -20,7 +32,6 @@
         output { min-width: 80px; display: inline-block; text-align: right; font-weight: bold; }
         small { color: #555; }
     </style>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
 <body>
 <div class="container">
@@ -83,17 +94,21 @@
         return sum;
     }
 
-    $(function () {
-        $('#zscore-form').on('submit', function(event) {
+    document.addEventListener('DOMContentLoaded', function () {
+        var form = document.getElementById('zscore-form');
+        var zscoreInput = document.getElementById('zscore-input');
+        var zscoreOutput = document.getElementById('zscore-output');
+
+        form.addEventListener('submit', function(event) {
             event.preventDefault();
-            var side = $('input[name="side"]:checked').val();
-            var zScoreInputValue = $('#zscore-input').val();
+            var side = document.querySelector('input[name="side"]:checked').value;
+            var zScoreInputValue = zscoreInput.value;
             var zScore = side === 'two-sided'
                 ? zValueTwo(zScoreInputValue)
                 : zValue(zScoreInputValue);
 
             if (zScore === 0 || zScore === 0.0){
-                $('#zscore-output').val("0%");
+                zscoreOutput.value = "0%";
                 return;
             }
 
@@ -101,5 +116,10 @@
                 var outputValue = side === 'two-sided'
                     ? zScore
                     : zScore * 100;
-                $('#zscore-output').val(parseFloat(outputValue).toFixed(2) + " %");
+                zscoreOutput.value = parseFloat(outputValue).toFixed(2) + " %";
             }
+        });
+    });
+</script>
+</body>
+</html>
