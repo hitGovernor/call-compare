@@ -132,7 +132,13 @@ function powerFunction(){
     return ncdf(zScore(),0,1);
 }
 
-document.getElementById('power-calculator-form').addEventListener('submit', function(e){
-    e.preventDefault();
-    var result = powerFunction();
-    document.getElementById('power-output').value = result.toFixed(2) + '%';
+document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('power-calculator-form').addEventListener('submit', function(e){
+        e.preventDefault();
+        var result = powerFunction();
+        document.getElementById('power-output').value = result.toFixed(2) + '%';
+    });
+});
+</script>
+</body>
+</html>

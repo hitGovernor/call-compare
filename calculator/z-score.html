@@ -17,8 +17,6 @@
   <!-- End Google Tag Manager -->
 
   <script type="text/javascript" src="../script/tracker.js"></script>
-  <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
-    integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
 
 </head>
 
@@ -128,21 +126,21 @@
         return sum;
       }
 
-      jQuery(document).ready(function ($) {
-        $(document).keypress(function (e) {
+      document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('keypress', function (e) {
           if (e.which == 13) {
             e.preventDefault();
           }
         });
 
-        var zScoreInput = $('#zscore-input');
-        var zScoreOutput = $('#zscore-output');
-        var zScoreCalculateButton = $('#zscore-calculate-button');
+        var zScoreInput = document.getElementById('zscore-input');
+        var zScoreOutput = document.getElementById('zscore-output');
+        var zScoreCalculateButton = document.getElementById('zscore-calculate-button');
 
-        zScoreCalculateButton.on('click', function (event) {
+        zScoreCalculateButton.addEventListener('click', function (event) {
           event.preventDefault();
-          var side = $('input[name="side"]:checked').val();
-          var zScoreInputValue = zScoreInput.val();
+          var side = document.querySelector('input[name="side"]:checked').value;
+          var zScoreInputValue = zScoreInput.value;
           var zScore = side === 'two-sided'
             ? zValueTwo(zScoreInputValue)
             : zValue(zScoreInputValue);
@@ -156,7 +154,7 @@
           } catch (e) { /* do nothing */ }
 
           if (zScore === 0 || zScore === 0.0) {
-            zScoreOutput.val("0%");
+            zScoreOutput.value = "0%";
             return;
           }
 
@@ -164,7 +162,7 @@
             var outputValue = side === 'two-sided'
               ? zScore
               : zScore * 100;
-            zScoreOutput.val(outputValue.toFixed(2) + " %"); //- show percentage
+            zScoreOutput.value = parseFloat(outputValue).toFixed(2) + " %";
           }
         });
       });
