@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+  <h2>Iframe Content</h2>
+  <table border='1' cellpadding='4' style='border-collapse:collapse;'>
+    <tr>
+      <th>URL</th>
+      <td id='urlCell'>Waiting...</td>
+    </tr>
+    <tr>
+      <th>Referrer</th>
+      <td id='refCell'>Waiting...</td>
+    </tr>
+  </table>
+  <script>
+    window.addEventListener('message', function (e) {
+      if (e.data && typeof e.data === 'object') {
+        document.getElementById('urlCell').textContent = e.data.url || '';
+        document.getElementById('refCell').textContent = e.data.referrer || '';
+        history.replaceState();
+      }
+    });
+  </script>
+</body>
+
+</html>

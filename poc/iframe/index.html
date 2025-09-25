@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Sandboxed Iframe URL Demo</title>
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+
+    iframe {
+      width: 100%;
+      height: 200px;
+      border: 1px solid #ccc;
+    }
+
+    form {
+      margin-top: 1em;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Sandboxed Iframe URL Demo</h1>
+  <form id="urlForm">
+    <label>
+      URL to send to iframe:
+      <input type="text" id="urlInput" value="https://example.com">
+    </label>
+    <button type="submit">Send URL</button>
+  </form>
+  <iframe id="sandboxedFrame" src="frame.html" sandbox="allow-scripts"></iframe>
+  <script>
+    const form = document.getElementById('urlForm');
+    const input = document.getElementById('urlInput');
+    const iframe = document.getElementById('sandboxedFrame');
+
+    function sendDataToIframe(url, referrer) {
+      iframe.contentWindow.postMessage({ url, referrer }, '*');
+    }
+
+    // Send initial data on iframe load
+    iframe.addEventListener('load', function () {
+      sendDataToIframe(document.location.href, document.referrer);
+    });
+
+    // Send data on form submit
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      sendDataToIframe(input.value, document.referrer);
+    });
+  </script>
