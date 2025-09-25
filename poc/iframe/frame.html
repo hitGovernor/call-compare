@@ -4,51 +4,55 @@
 <body>
   <h2>Iframe Content</h2>
   <table border='1' cellpadding='4' style='border-collapse:collapse;'>
+    <!-- <tr>
+      <th>Hostname</th>
+      <td id='hostname'>Waiting...</td>
+    </tr> -->
     <tr>
-      <th>URL</th>
-      <td id='urlCell'>Waiting...</td>
+      <th>HREF</th>
+      <td id='href'>Waiting...</td>
+    </tr>
+    <!-- <tr>
+      <th>Pathname</th>
+      <td id='pathname'>Waiting...</td>
     </tr>
     <tr>
+      <th>Search</th>
+      <td id='search'>Waiting...</td>
+    </tr>
+    <tr>
+      <th>Hash</th>
+      <td id='hash'>Waiting...</td>
+    </tr> -->
+    <tr>
       <th>Referrer</th>
-      <td id='refCell'>Waiting...</td>
+      <td id='referrer'>Waiting...</td>
+    </tr>
+    <tr>
+      <th>Title</th>
+      <td id='title'>Waiting...</td>
     </tr>
   </table>
   <script>
     window.addEventListener('message', function (e) {
-      
-      let output = {
-        origUrl: document.location.href,
-        origRef: document.referrer,
-        updatedUrl: "",
-        updatedRef: ""
-      };
-
       if (e.data && typeof e.data === 'object') {
-        let parentUrl = e.data.url || '';
-        let parentRef = e.data.referrer || '';
+        if (e?.data?.href) {
+          history.replaceState({}, '', e.data?.href);
+        }
 
-        document.getElementById('urlCell').textContent =  parentUrl;
-        document.getElementById('refCell').textContent = parentRef;
-
-        history.replaceState({}, '', parentUrl);
-
-        output.updatedUrl = document.location.href;
-        output.updatedRef = document.referrer;
-        output.parentRef = parentRef;
+        document.getElementById('href').textContent = e?.data?.href || "";
+        document.getElementById('referrer').textContent = e?.data?.referrer || "";
+        document.getElementById('title').textContent = e?.data?.title || "";
       }
-
-      console.log(output);
-      utag.view()
-
     });
   </script>
 
   <!-- contrary to tealium's recommendations, i prefer the tms at the bottom of the body -->
   <script type="text/javascript">
-    (function(a,b,c,d){
-    a='https://tags.tiqcdn.com/utag/evolytics-training/bcj/dev/utag.js';
-    b=document;c='script';d=b.createElement(c);d.src=a;d.type='text/java'+c;d.async=true;
-    a=b.getElementsByTagName(c)[0];a.parentNode.insertBefore(d,a);
+    (function (a, b, c, d) {
+      a = 'https://tags.tiqcdn.com/utag/evolytics-training/bcj/dev/utag.js';
+      b = document; c = 'script'; d = b.createElement(c); d.src = a; d.type = 'text/java' + c; d.async = true;
+      a = b.getElementsByTagName(c)[0]; a.parentNode.insertBefore(d, a);
     })();
   </script>
 </body>

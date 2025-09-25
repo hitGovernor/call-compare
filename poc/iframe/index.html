@@ -26,7 +26,7 @@
   <form id="urlForm">
     <label>
       URL to send to iframe:
-      <input type="text" id="urlInput" value="https://example.com">
+      <input type="text" id="urlInput" placeholder="https://example.com/page?param=value">
     </label>
     <button type="submit">Send URL</button>
   </form>
@@ -36,18 +36,27 @@
     const input = document.getElementById('urlInput');
     const iframe = document.getElementById('sandboxedFrame');
 
-    function sendDataToIframe(url, referrer) {
-      iframe.contentWindow.postMessage({ url, referrer }, '*');
+    function sendDataToIframe(payload) {
+      iframe.contentWindow.postMessage(payload, '*');
     }
 
     // Send initial data on iframe load
     iframe.addEventListener('load', function () {
-      sendDataToIframe(document.location.href, document.referrer);
+      let payload = {
+        href: document.location.href,
+        referrer: document.referrer || "",
+        title: document.title || ""
+      }
+      sendDataToIframe(payload);
     });
 
     // Send data on form submit
     form.addEventListener('submit', function (e) {
       e.preventDefault();
-      sendDataToIframe(input.value, document.referrer);
+      let payload = {
+        href: input.value || "",
+        referrer: document.referrer || ""
+      }
+      sendDataToIframe(payload);
     });
   </script>
