@@ -16,9 +16,16 @@
   <script>
     window.addEventListener('message', function (e) {
       if (e.data && typeof e.data === 'object') {
-        document.getElementById('urlCell').textContent = e.data.url || '';
-        document.getElementById('refCell').textContent = e.data.referrer || '';
-        history.replaceState();
+        let parentUrl = e.data.url || '';
+        let parentRef = e.data.referrer || '';
+
+        document.getElementById('urlCell').textContent =  parentUrl;
+        document.getElementById('refCell').textContent = parentRef;
+
+        history.replaceState({}, '', parentRef);
+        history.replaceState({}, '', parentUrl);
+        console.log(document.location.href);
+        console.log(document.referrer);
       }
     });
   </script>
