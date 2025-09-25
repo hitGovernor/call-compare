@@ -22,7 +22,7 @@
         document.getElementById('urlCell').textContent =  parentUrl;
         document.getElementById('refCell').textContent = parentRef;
 
-        history.replaceState({}, '', parentRef);
+        // history.replaceState({}, '', parentRef); // due to origin conflicts, cannot set URL to other domains
         history.replaceState({}, '', parentUrl);
         console.log(document.location.href);
         console.log(document.referrer);
