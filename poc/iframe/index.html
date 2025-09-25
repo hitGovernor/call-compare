@@ -30,7 +30,7 @@
     </label>
     <button type="submit">Send URL</button>
   </form>
-  <iframe id="sandboxedFrame" src="frame.html" sandbox="allow-scripts"></iframe>
+  <iframe id="sandboxedFrame" src="frame.html" sandbox="allow-scripts allow-same-origin"></iframe>
   <script>
     const form = document.getElementById('urlForm');
     const input = document.getElementById('urlInput');
