@@ -15,6 +15,14 @@
   </table>
   <script>
     window.addEventListener('message', function (e) {
+      
+      let output = {
+        origUrl: document.location.href,
+        origRef: document.referrer,
+        updatedUrl: "",
+        updatedRef: ""
+      };
+
       if (e.data && typeof e.data === 'object') {
         let parentUrl = e.data.url || '';
         let parentRef = e.data.referrer || '';
@@ -22,11 +30,15 @@
         document.getElementById('urlCell').textContent =  parentUrl;
         document.getElementById('refCell').textContent = parentRef;
 
-        // history.replaceState({}, '', parentRef); // due to origin conflicts, cannot set URL to other domains
         history.replaceState({}, '', parentUrl);
-        console.log(document.location.href);
-        console.log(document.referrer);
+
+        output.updatedUrl = document.location.href;
+        output.updatedRef = document.referrer;
+        output.parentRef = parentRef;
       }
+
+      console.log(output);
+      
     });
   </script>
 </body>
