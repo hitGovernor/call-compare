@@ -49,13 +49,14 @@
       }
       sendDataToIframe(payload);
     });
-
+    
     // Send data on form submit
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       let payload = {
         href: input.value || "",
-        referrer: document.referrer || ""
+        referrer: document.referrer || "",
+        title: document.title || ""
       }
       sendDataToIframe(payload);
     });
