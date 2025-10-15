@@ -38,7 +38,9 @@
     let urlObject = new URL(targetUrl);
     let params = new URLSearchParams(urlObject.search);
     let _gl = params.get('_gl') || "";
-    iframeSrc += (_gl) ? "?_gl=" + _gl : "";
+    let _gclid = params.get('gclid') || "";
+
+    iframeSrc += (_gl) ? "?_gl=" + _gl : ((_gclid) ? "?gclid=" + _gclid : "");
 
     let iframeElement = document.getElementById("sandboxedFrame");
     iframeElement.setAttribute("src", iframeSrc);
