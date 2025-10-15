@@ -4,26 +4,10 @@
 <body>
   <h2>Iframe Content</h2>
   <table border='1' cellpadding='4' style='border-collapse:collapse;'>
-    <!-- <tr>
-      <th>Hostname</th>
-      <td id='hostname'>Waiting...</td>
-    </tr> -->
     <tr>
       <th>HREF</th>
       <td id='href'>Waiting...</td>
     </tr>
-    <!-- <tr>
-      <th>Pathname</th>
-      <td id='pathname'>Waiting...</td>
-    </tr>
-    <tr>
-      <th>Search</th>
-      <td id='search'>Waiting...</td>
-    </tr>
-    <tr>
-      <th>Hash</th>
-      <td id='hash'>Waiting...</td>
-    </tr> -->
     <tr>
       <th>Referrer</th>
       <td id='referrer'>Waiting...</td>
@@ -33,6 +17,7 @@
       <td id='title'>Waiting...</td>
     </tr>
   </table>
+
   <script>
     window.addEventListener('message', function (e) {
       if (e.data && typeof e.data === 'object') {
