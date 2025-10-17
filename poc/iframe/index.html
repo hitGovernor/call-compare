@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Sandboxed Iframe URL Demo</title>
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+
+    iframe {
+      width: 100%;
+      height: 300px;
+      border: 1px solid #ccc;
+    }
+
+    form {
+      margin-top: 1em;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Sandboxed Iframe URL Demo</h1>
+  <form id="urlForm">
+    <label>
+      URL to send to iframe:
+      <input type="text" id="urlInput" placeholder="https://example.com/page?param=value">
+    </label>
+    <button type="submit">Send URL</button>
+  </form>
+  <iframe id="sandboxedFrame" src="" sandbox="allow-scripts allow-same-origin"></iframe>
+
+  <script>
+    let iframeSrc = "frame.html";
+    let targetUrl = window.location.href || "";
+    let urlObject = new URL(targetUrl);
+    let params = new URLSearchParams(urlObject.search);
+    let _gl = params.get('_gl') || "";
+    let _gclid = params.get('gclid') || "";
+
+    iframeSrc += (_gl) ? "?_gl=" + _gl : ((_gclid) ? "?gclid=" + _gclid : "");
+
+    let iframeElement = document.getElementById("sandboxedFrame");
+    iframeElement.setAttribute("src", iframeSrc);
+
+    const form = document.getElementById('urlForm');
+    const input = document.getElementById('urlInput');
+    const iframe = document.getElementById('sandboxedFrame');
+
+    function sendDataToIframe(payload) {
+      iframe.contentWindow.postMessage(payload, '*');
+    }
+
+    // Send initial data on iframe load
+    iframe.addEventListener('load', function () {
+      let payload = {
+        href: document.location.href,
+        referrer: document.referrer || "",
+        title: document.title || ""
+      }
+      sendDataToIframe(payload);
+    });
+
+    // Send data on form submit
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      let payload = {
+        href: input.value || "",
+        referrer: document.referrer || "",
+        title: document.title || ""
+      }
+      sendDataToIframe(payload);
+    });
+  </script>
+</body>
+
+</html>

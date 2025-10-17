@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+  <h2>Iframe Content</h2>
+  <table border='1' cellpadding='4' style='border-collapse:collapse;'>
+    <tr>
+      <th>HREF</th>
+      <td id='href'>Waiting...</td>
+    </tr>
+    <tr>
+      <th>Referrer</th>
+      <td id='referrer'>Waiting...</td>
+    </tr>
+    <tr>
+      <th>Title</th>
+      <td id='title'>Waiting...</td>
+    </tr>
+  </table>
+
+  <script>
+    window.addEventListener('message', function (e) {
+      if (e.data && typeof e.data === 'object') {
+        if (e?.data?.href) {
+          history.replaceState({}, '', e.data?.href);
+        }
+
+        document.getElementById('href').textContent = e?.data?.href || "";
+        document.getElementById('referrer').textContent = e?.data?.referrer || "";
+        document.getElementById('title').textContent = e?.data?.title || "";
+      }
+    });
+  </script>
+
+  <!-- contrary to tealium's recommendations, i prefer the tms at the bottom of the body -->
+  <script type="text/javascript">
+    setTimeout(function() {
+      (function (a, b, c, d) {
+        a = 'https://tags.tiqcdn.com/utag/evolytics-training/bcj/dev/utag.js';
+        b = document; c = 'script'; d = b.createElement(c); d.src = a; d.type = 'text/java' + c; d.async = true;
+        a = b.getElementsByTagName(c)[0]; a.parentNode.insertBefore(d, a);
+      })();
+    }, 100);
+  </script>
+</body>
+
+</html>
