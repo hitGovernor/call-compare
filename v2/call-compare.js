@@ -157,8 +157,6 @@
     var thead = document.createElement('thead');
     var trh = document.createElement('tr');
     for(var hh=0; hh<headers.length; hh++){ var th = document.createElement('th'); th.textContent = headers[hh]; trh.appendChild(th); }
-    // Add PII header
-    var thPii = document.createElement('th'); thPii.textContent = 'PII'; thPii.style.width = '8%'; trh.appendChild(thPii);
     thead.appendChild(trh); table.appendChild(thead);
     var tbody = document.createElement('tbody');
     for(var ri=0; ri<rows.length; ri++){
@@ -170,9 +168,7 @@
       var tdLeft = document.createElement('td'); tdLeft.className = 'left'; tdLeft.textContent = r.left || '';
       var tdRight = document.createElement('td'); tdRight.className = 'right'; tdRight.textContent = r.right || '';
       var tdMatch = document.createElement('td'); tdMatch.className = 'match'; tdMatch.textContent = r.match || '';
-      var tdPii = document.createElement('td'); tdPii.className = 'pii';
-      if(r.pii){ var span = document.createElement('span'); span.className = 'pii-badge'; span.textContent = 'PII'; tdPii.appendChild(span); }
-      tr.appendChild(tdKey); tr.appendChild(tdLeft); tr.appendChild(tdRight); tr.appendChild(tdMatch); tr.appendChild(tdPii);
+      tr.appendChild(tdKey); tr.appendChild(tdLeft); tr.appendChild(tdRight); tr.appendChild(tdMatch);
       tbody.appendChild(tr);
     }
     table.appendChild(tbody);
@@ -213,7 +209,10 @@
         if(rows.length === 0) continue;
         var table = buildTableFromArray(rows, i, ['Key','Left','Right','Match']);
         // add a header about PII if detected
-        var heading = document.createElement('div'); heading.className = 'table-heading'; heading.textContent = 'Comparison ' + (i+1) + (pair.piiDetected ? ' — PII detected' : '');
+        var heading = document.createElement('div'); heading.className = 'table-heading'; heading.textContent = 'Comparison ' + (i+1) + (pair.piiDetected ? '' : '');
+        if(pair.piiDetected){ var warn = document.createElement('span'); warn.className = 'pii-warning'; warn.textContent = 'PII Detected'; heading.appendChild(warn); }
+        // extra space before table
+        res.appendChild(document.createElement('br'));
         res.appendChild(heading);
         res.appendChild(table);
       }
