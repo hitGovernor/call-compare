@@ -30,13 +30,13 @@ header .hint { margin: 0 0 18px 0; color: #6b7280; font-size: .95rem; }
 .legend-row-right-only td { background:#eef2ff; }
 .legend-row-pii td { outline: 2px solid rgba(255,160,0,0.12); }
 
-/* PII and legend swatches */
-.legend-swatch { display:inline-block; width:12px; height:12px; margin-right:6px; border-radius:2px; vertical-align:middle; }
-.legend-swatch.exact { background:#e6fffa; border:1px solid #acf1e9 }
-.legend-swatch.exists { background:#fff7ed; border:1px solid #ffe6c7 }
-.legend-swatch.left-only { background:#fff1f2; border:1px solid #ffd1d7 }
-.legend-swatch.right-only { background:#eef2ff; border:1px solid #d7e4ff }
-.legend-swatch.pii { background:#fff7f0; border:1px solid #ffd9a6 }
+/* result table improvements */
+.result-table td.pii { position:relative; }
+.result-table td.pii:before { content:"PII"; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:#ffd9a6; color:#92400e; padding:2px 6px; border-radius:4px; font-size:.8rem; white-space:nowrap; }
+.result-table td.pii.exact { background:#e6fffa; }
+.result-table td.pii.exists { background:#fff7ed; }
+.result-table td.pii.left-only { background:#fff1f2; }
+.result-table td.pii.right-only { background:#eef2ff; }
 
 /* PII badge */
 .pii-badge { display:inline-block; padding:2px 6px; background:#ffd9a6; color:#92400e; border-radius:4px; font-size:.8rem; margin-left:6px; }

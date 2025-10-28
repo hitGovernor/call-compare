@@ -42,6 +42,29 @@
     return out;
   }
 
+  function detectPIIValue(key, value){
+    // basic heuristics
+    if(!value) return false;
+    var val = String(value).trim();
+    var keyLower = String(key).toLowerCase();
+    // email
+    if(/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(val)) return true;
+    // phone (simple)
+    if(/^(?:\+?\d[\d\-() ]{7,}\d)$/.test(val)) return true;
+    // ssn-ish
+    if(/^(\d{3}[- ]?\d{2}[- ]?\d{4})$/.test(val)) return true;
+    // probable name or email by key
+    if(/name|first_name|last_name|email|phone|ssn|dob|birth/.test(keyLower)) return true;
+    // long base64-looking (likely token) or jwt
+    if(/^[A-Za-z0-9_-]{20,}\.?[A-Za-z0-9_-]*$/.test(val)) return true;
+    return false;
+  }
+
+  function anyPIIInPair(map){
+    for(var k in map){ if(map.hasOwnProperty(k)){ if(detectPIIValue(k, map[k])) return true; } }
+    return false;
+  }
+
   function parseParams(text, customDelimiter){
     if(!text) return {};
     var q = String(text).trim();
@@ -96,6 +119,8 @@
     var leftParams = parseParams(leftRaw, delim);
     var rightParams = parseParams(rightRaw, delim);
 
+    var piiDetected = anyPIIInPair(leftParams) || anyPIIInPair(rightParams);
+
     var keys = {};
     for(var k in leftParams) if(leftParams.hasOwnProperty(k)) keys[k] = true;
     for(var k2 in rightParams) if(rightParams.hasOwnProperty(k2)) keys[k2] = true;
@@ -111,10 +136,11 @@
         if(l === r) status = 'exact'; else status = 'exists';
       } else if(l !== '' && r === ''){ status = 'left-only'; }
       else if(l === '' && r !== ''){ status = 'right-only'; }
-      results.push({ key: key, left: l, right: r, match: status });
+      var pii = detectPIIValue(key, l) || detectPIIValue(key, r);
+      results.push({ key: key, left: l, right: r, match: status, pii: pii });
     }
 
-    return { results: results, testCount: 0 };
+    return { results: results, testCount: 0, piiDetected: piiDetected };
   }
 
   function flattenResultsWrapper(results){
@@ -127,17 +153,22 @@
     var thead = document.createElement('thead');
     var trh = document.createElement('tr');
     for(var hh=0; hh<headers.length; hh++){ var th = document.createElement('th'); th.textContent = headers[hh]; trh.appendChild(th); }
+    // Add PII header
+    var thPii = document.createElement('th'); thPii.textContent = 'PII'; thPii.style.width = '8%'; trh.appendChild(thPii);
     thead.appendChild(trh); table.appendChild(thead);
     var tbody = document.createElement('tbody');
     for(var ri=0; ri<rows.length; ri++){
       var r = rows[ri];
       var tr = document.createElement('tr');
-      tr.className = 'legend-row-' + (r.match || 'exists');
-      var tdKey = document.createElement('td'); tdKey.textContent = r.key || '';
-      var tdLeft = document.createElement('td'); tdLeft.textContent = r.left || '';
-      var tdRight = document.createElement('td'); tdRight.textContent = r.right || '';
-      var tdMatch = document.createElement('td'); tdMatch.textContent = r.match || '';
-      tr.appendChild(tdKey); tr.appendChild(tdLeft); tr.appendChild(tdRight); tr.appendChild(tdMatch);
+      if(r.pii) tr.className = 'legend-row-pii'; else tr.className = '';
+      tr.className += ' legend-row-' + (r.match || 'exists');
+      var tdKey = document.createElement('td'); tdKey.className = 'key'; tdKey.textContent = r.key || '';
+      var tdLeft = document.createElement('td'); tdLeft.className = 'left'; tdLeft.textContent = r.left || '';
+      var tdRight = document.createElement('td'); tdRight.className = 'right'; tdRight.textContent = r.right || '';
+      var tdMatch = document.createElement('td'); tdMatch.className = 'match'; tdMatch.textContent = r.match || '';
+      var tdPii = document.createElement('td'); tdPii.className = 'pii';
+      if(r.pii){ var span = document.createElement('span'); span.className = 'pii-badge'; span.textContent = 'PII'; tdPii.appendChild(span); }
+      tr.appendChild(tdKey); tr.appendChild(tdLeft); tr.appendChild(tdRight); tr.appendChild(tdMatch); tr.appendChild(tdPii);
       tbody.appendChild(tr);
     }
     table.appendChild(tbody);
@@ -177,6 +208,9 @@
         var rows = flattenResultsWrapper(pair);
         if(rows.length === 0) continue;
         var table = buildTableFromArray(rows, i, ['Key','Left','Right','Match']);
+        // add a header about PII if detected
+        var heading = document.createElement('div'); heading.className = 'table-heading'; heading.textContent = 'Comparison ' + (i+1) + (pair.piiDetected ? ' — PII detected' : '');
+        res.appendChild(heading);
         res.appendChild(table);
       }
     });
