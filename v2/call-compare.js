@@ -5,9 +5,57 @@
     try { return decodeURIComponent(s); } catch (e) { return s; }
   }
 
+  function isLikelyJSON(s){
+    if(!s) return false;
+    var t = String(s).trim();
+    return (t.charAt(0) === '{' || t.charAt(0) === '[');
+  }
+
+  function flattenObject(obj, prefix, out){
+    prefix = prefix || '';
+    out = out || {};
+    if(obj === null || typeof obj !== 'object'){
+      out[prefix] = (obj === null) ? '' : String(obj);
+      return out;
+    }
+    if(Array.isArray(obj)){
+      for(var i=0;i<obj.length;i++){
+        var key = prefix ? (prefix + '.' + i) : String(i);
+        if(typeof obj[i] === 'object' && obj[i] !== null){
+          flattenObject(obj[i], key, out);
+        } else {
+          out[key] = String(obj[i]);
+        }
+      }
+      return out;
+    }
+    for(var k in obj){
+      if(!obj.hasOwnProperty(k)) continue;
+      var val = obj[k];
+      var newKey = prefix ? (prefix + '.' + k) : k;
+      if(typeof val === 'object' && val !== null){
+        flattenObject(val, newKey, out);
+      } else {
+        out[newKey] = String(val);
+      }
+    }
+    return out;
+  }
+
   function parseParams(text, customDelimiter){
     if(!text) return {};
     var q = String(text).trim();
+
+    // If looks like JSON, parse and flatten
+    if(isLikelyJSON(q)){
+      try {
+        var parsed = JSON.parse(q);
+        return flattenObject(parsed);
+      } catch(e) {
+        // fall through to param parsing if JSON.parse fails
+      }
+    }
+
     // if URL, take part after first ?
     var qidx = q.indexOf('?');
     if(qidx !== -1) q = q.slice(qidx + 1);
@@ -17,8 +65,7 @@
     // normalize separators: newline, semicolon, ampersand
     q = q.replace(/\r?\n/g, '&').replace(/;/g, '&');
     if(customDelimiter){
-      // escape custom delimiter for regex
-      var esc = customDelimiter.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+      var esc = String(customDelimiter).replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
       q = q.replace(new RegExp(esc, 'g'), '&');
     }
 
@@ -36,7 +83,6 @@
       if(!map.hasOwnProperty(key)) map[key] = [];
       map[key].push(val);
     }
-    // join repeated values with | for display
     var out = {};
     for(var k in map){ if(map.hasOwnProperty(k)) out[k] = map[k].join(' | '); }
     return out;
@@ -46,6 +92,7 @@
     var leftRaw = options.left || '';
     var rightRaw = (typeof options.right === 'undefined') ? '' : options.right || '';
     var delim = options.customDelimiter || null;
+
     var leftParams = parseParams(leftRaw, delim);
     var rightParams = parseParams(rightRaw, delim);
 
@@ -71,7 +118,6 @@
   }
 
   function flattenResultsWrapper(results){
-    // results is expected to be {results: [...]}
     return (results && results.results) ? results.results : [];
   }
 
@@ -80,10 +126,11 @@
     table.className = 'result-table';
     var thead = document.createElement('thead');
     var trh = document.createElement('tr');
-    headers.forEach(function(h){ var th = document.createElement('th'); th.textContent = h; trh.appendChild(th); });
+    for(var hh=0; hh<headers.length; hh++){ var th = document.createElement('th'); th.textContent = headers[hh]; trh.appendChild(th); }
     thead.appendChild(trh); table.appendChild(thead);
     var tbody = document.createElement('tbody');
-    rows.forEach(function(r){
+    for(var ri=0; ri<rows.length; ri++){
+      var r = rows[ri];
       var tr = document.createElement('tr');
       tr.className = 'legend-row-' + (r.match || 'exists');
       var tdKey = document.createElement('td'); tdKey.textContent = r.key || '';
@@ -92,7 +139,7 @@
       var tdMatch = document.createElement('td'); tdMatch.textContent = r.match || '';
       tr.appendChild(tdKey); tr.appendChild(tdLeft); tr.appendChild(tdRight); tr.appendChild(tdMatch);
       tbody.appendChild(tr);
-    });
+    }
     table.appendChild(tbody);
     return table;
   }
@@ -137,8 +184,8 @@
     document.getElementById('form-reset').addEventListener('click', function(){ res.innerHTML = ''; });
 
     document.getElementById('compare-samples').addEventListener('click', function(){
-      document.getElementById('left-calls').value = 'https://example.com?a=1&b=hello%20there\nhttps://example.com?x=1&y=2';
-      document.getElementById('right-calls').value = 'https://example.com?a=1&b=goodbye\nhttps://example.com?x=1&y=3';
+      document.getElementById('left-calls').value = '{"user": {"id": 123, "name": "Alice"}, "items": ["a","b"]}\nhttps://example.com?a=1&b=hello%20there';
+      document.getElementById('right-calls').value = '{"user": {"id": 123, "name": "Alice Smith"}, "items": ["a","c"]}\nhttps://example.com?a=1&b=goodbye';
       form.requestSubmit();
     });
 
