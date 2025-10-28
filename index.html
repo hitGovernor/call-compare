@@ -4,7 +4,7 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="google-site-verification" content="CXiLcA6OMOr2WWgxusf5cEyTiwpOf8avE6AiAXWV59I" />
-  
+
   <title>Analytics Call Comparison Tool</title>
   <link rel="stylesheet" href="/style/style.css">
 
@@ -192,6 +192,7 @@
       };
 
       output.forEach(function (item) {
+        console.log(`isPiiRisk: ${item.isPiiRisk}`);
         if (item.error) {
           console.warn(item.error);
         } else {
