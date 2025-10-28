@@ -23,6 +23,78 @@ let CONFIG = {
   customDelimiter: ";"
 };
 
+/**
+ * The core function to evaluate a string for common PII/PHI patterns.
+ * @param {string} text The string to be analyzed.
+ * @returns {Object} An object containing the types of PII/PHI found and the matches, 
+ * structured as { results: { "Category Name": ["match1", "match2"], ... }, foundCount: N }.
+ */
+let evaluateForPII = function (text) {
+  if (!text || typeof text !== 'string') {
+    // Return an empty structure if the input is invalid
+    return { results: {}, foundCount: 0 };
+  }
+
+  const patterns = {
+    // Email Address: Standard format (user@domain.tld)
+    email: {
+      regex: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g,
+      label: "Email Address"
+    },
+
+    // US Phone Number: Catches (555) 555-5555, 555-555-5555, 555.555.5555, etc.
+    phone: {
+      regex: /\(?\d{3}\)?[.\-\s]?\d{3}[.\-\s]?\d{4}/g,
+      label: "Phone Number"
+    },
+
+    // US Social Security Number (SSN): Format XXX-XX-XXXX
+    ssn: {
+      regex: /\b\d{3}-\d{2}-\d{4}\b/g,
+      label: "Social Security Number (SSN)"
+    },
+
+    // // Date of Birth (Simple Format): Catches MM/DD/YYYY, MM-DD-YYYY, etc.
+    // // This is highly generic and might catch non-DOB dates.
+    // dob: {
+    //   regex: /\b(0[1-9]|1[0-2])[-\/\.](0[1-9]|[12]\d|3[01])[-\/\.](\d{4}|\d{2})\b/g,
+    //   label: "Date (Potential DOB/Service Date)"
+    // },
+
+    // IP Address (simple check)
+    ip_address: {
+      regex: /\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b/g,
+      label: "IP Address"
+    }
+  };
+
+  const results = {};
+  let foundCount = 0;
+
+  for (const key in patterns) {
+    const { regex, label } = patterns[key];
+    let match;
+    const matches = [];
+
+    // Use exec in a loop to find all occurrences globally
+    while ((match = regex.exec(text)) !== null) {
+      // This is necessary to avoid infinite loops with zero-width matches
+      if (match.index === regex.lastIndex) {
+        regex.lastIndex++;
+      }
+      // Add the matched string
+      matches.push(match[0]);
+      foundCount++;
+    }
+
+    if (matches.length > 0) {
+      results[label] = matches;
+    }
+  }
+
+  return { results, foundCount };
+}
+
 let flattenObject = function (obj, prefix = '', result = {}) {
   for (const key in obj) {
     if (obj.hasOwnProperty(key)) {
@@ -61,31 +133,6 @@ let flattenResults = function (obj, indent = "") {  // Add indent for visualizat
   }
   return retval;
 }
-
-// let identifyInputType = function (input, compType = null) {
-//   // // return the override, if provided
-//   // if(compType) {
-//   //   return compType;
-//   // }
-
-//   if (typeof input === 'string') {
-//     try {
-//       new URL(input); // Try to create a URL object
-//       return 'url';
-//     } catch (e) {
-//       try {
-//         JSON.parse(input); // Try to parse as JSON
-//         return 'json';
-//       } catch (e) {
-//         return 'string'; // If not a URL or JSON, it's a regular string
-//       }
-//     }
-//   } else if (typeof input === 'object' && input !== null && !Array.isArray(input)) { // Check for object, not null, and not an array
-//     return 'object';
-//   } else {
-//     return 'unknown'; // Or another appropriate type if needed (e.g., 'number', 'boolean')
-//   }
-// }
 
 function identifyInputType(input) {
   if (typeof input === 'object' && input !== null) {
@@ -138,10 +185,10 @@ let convertUrlToJson = function (url, customDelimiter = null) {
   return json;
 }
 
-let parseStringToJson = function(str, customDelimiter = null) {
+let parseStringToJson = function (str, customDelimiter = null) {
   let delimiter = customDelimiter || CONFIG.customDelimiter;
   let json = {};
-  
+
   if (str.indexOf(delimiter) > -1) {
     let parsedPath = str.split(delimiter);
     parsedPath.forEach(function (item) {
@@ -203,7 +250,7 @@ let formatObjectForCompare = function (inputType, comparisonObject, customDelimi
     retval = convertUrlToJson(comparisonObject, customDelimiter);
   } else if (inputType === "json") {
     retval = JSON.parse(comparisonObject);
-  } else if(inputType === "string") {
+  } else if (inputType === "string") {
     retval = parseStringToJson(comparisonObject, customDelimiter);
   } else {
     retval = comparisonObject;
@@ -220,13 +267,14 @@ let comparePair = function (payload) {
 
     // format url/json objects for comparison
     let obj1 = formatObjectForCompare(leftType, payload.left, payload.customDelimiter);
-    // if not right value provided, simply compare left against itself
+    // if no right value provided, simply compare left against itself
     let obj2 = (payload.right) ? formatObjectForCompare(rightType, payload.right, payload.customDelimiter) : obj2 = obj1;
 
     let comparison = (compareJsonObjects(obj1, obj2));
     comparison.left = payload.left;
     comparison.right = payload.right;
     comparison.testCount = ++testCount;
+    comparison.isPiiRisk = (evaluateForPII(payload.left)?.foundCount > 0);
 
     return comparison;
   } else {
