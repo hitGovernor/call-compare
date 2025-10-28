@@ -119,8 +119,6 @@
     var leftParams = parseParams(leftRaw, delim);
     var rightParams = parseParams(rightRaw, delim);
 
-    var piiDetected = anyPIIInPair(leftParams) || anyPIIInPair(rightParams);
-
     var keys = {};
     for(var k in leftParams) if(leftParams.hasOwnProperty(k)) keys[k] = true;
     for(var k2 in rightParams) if(rightParams.hasOwnProperty(k2)) keys[k2] = true;
@@ -138,6 +136,12 @@
       else if(l === '' && r !== ''){ status = 'right-only'; }
       var pii = detectPIIValue(key, l) || detectPIIValue(key, r);
       results.push({ key: key, left: l, right: r, match: status, pii: pii });
+    }
+
+    // Determine if any row contains potential PII
+    var piiDetected = false;
+    for (var ri = 0; ri < results.length; ri++){
+      if (results[ri].pii) { piiDetected = true; break; }
     }
 
     return { results: results, testCount: 0, piiDetected: piiDetected };
