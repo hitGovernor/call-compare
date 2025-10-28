@@ -16,12 +16,29 @@ header .hint { margin: 0 0 18px 0; color: #6b7280; font-size: .95rem; }
 .actions button[type="reset"] { background:#ef4444; }
 .actions button#compare-samples { background:#3b82f6; }
 .results { margin-top:18px; }
-.result-table { width:100%; border-collapse:collapse; margin-top:12px; }
-.result-table th, .result-table td { text-align:left; padding:8px; border-bottom:1px solid #eef2f7; font-size:.9rem; }
-.result-table th { background:#f8fafc; color:#111827; }
-.legend-row-exact { background:#e6fffa; }
-.legend-row-exists { background:#fff7ed; }
-.legend-row-left-only { background:#fff1f2; }
-.legend-row-right-only { background:#eef2ff; }
-.footer { margin-top:18px; color:#6b7280; font-size:.9rem; text-align:center; }
+.result-table { width:100%; border-collapse:collapse; margin-top:12px; table-layout: fixed; }
+.result-table th, .result-table td { padding:8px; border-bottom:1px solid #eef2f7; vertical-align: top; }
+.result-table th { background:#f8fafc; text-align:left; }
+.result-table td { word-wrap:break-word; }
+.result-table td.key { width: 22%; font-weight:600; }
+.result-table td.left, .result-table td.right { width: 34%; }
+.result-table td.match { width: 10%; text-transform:capitalize; font-weight:600; }
+/* coloring rows */
+.legend-row-exact td { background:#e6fffa; }
+.legend-row-exists td { background:#fff7ed; }
+.legend-row-left-only td { background:#fff1f2; }
+.legend-row-right-only td { background:#eef2ff; }
+.legend-row-pii td { outline: 2px solid rgba(255,160,0,0.12); }
+
+/* PII and legend swatches */
+.legend-swatch { display:inline-block; width:12px; height:12px; margin-right:6px; border-radius:2px; vertical-align:middle; }
+.legend-swatch.exact { background:#e6fffa; border:1px solid #acf1e9 }
+.legend-swatch.exists { background:#fff7ed; border:1px solid #ffe6c7 }
+.legend-swatch.left-only { background:#fff1f2; border:1px solid #ffd1d7 }
+.legend-swatch.right-only { background:#eef2ff; border:1px solid #d7e4ff }
+.legend-swatch.pii { background:#fff7f0; border:1px solid #ffd9a6 }
+
+/* PII badge */
+.pii-badge { display:inline-block; padding:2px 6px; background:#ffd9a6; color:#92400e; border-radius:4px; font-size:.8rem; margin-left:6px; }
+
 @media (max-width:720px){ .textareas { flex-direction:column } .textareas textarea{ width:100% } }
