@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="google-site-verification" content="CXiLcA6OMOr2WWgxusf5cEyTiwpOf8avE6AiAXWV59I" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Analytics Call Comparison Tool — v2</title>
+  <link rel="stylesheet" href="styles.css">
+
+  <script src="tracker.js"></script>
+  <script src="call-compare.js" defer></script>
+  <script src="page-actions.js" defer></script>
+</head>
+
+<body>
+  <main class="app">
+    <header>
+      <h1>Analytics Call Comparison Tool</h1>
+      <p class="hint">Enter one or more calls (one per line) in the LEFT field and an equal number in the RIGHT field to compare.</p>
+    </header>
+
+    <form id="compare-form" class="compare-form">
+      <div class="controls">
+        <label class="small">Custom delimiter
+          <input type="text" id="custom-delimiter" name="custom-delimiter" maxlength="3" size="3" placeholder="," />
+        </label>
+        <div class="legend">
+          <strong>Legend</strong>
+          <label><input type="checkbox" data-legend="exact" checked> Exact</label>
+          <label><input type="checkbox" data-legend="exists" checked> Exists</label>
+          <label><input type="checkbox" data-legend="left-only" checked> Left Only</label>
+          <label><input type="checkbox" data-legend="right-only" checked> Right Only</label>
+        </div>
+      </div>
+
+      <div class="textareas">
+        <textarea id="left-calls" placeholder="** Required **\n\nEnter LEFT text for parsing and/or comparison"></textarea>
+        <textarea id="right-calls" placeholder="** Optional **\n\nEnter RIGHT text for comparison (leave blank to compare left to itself)"></textarea>
+      </div>
+
+      <div class="actions">
+        <button type="submit">Compare</button>
+        <button type="reset" id="form-reset">Reset</button>
+        <button type="button" id="compare-samples">Compare Sample URLs</button>
+      </div>
+    </form>
+
+    <section id="results" class="results" aria-live="polite"></section>
+
+    <footer class="footer">v2 — simplified rebuild</footer>
+  </main>
+</body>
+
+</html>
