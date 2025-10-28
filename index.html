@@ -192,11 +192,11 @@
       };
 
       output.forEach(function (item) {
-        console.log(`isPiiRisk: ${item.isPiiRisk}`);
         if (item.error) {
           console.warn(item.error);
         } else {
-          let table = buildTableFromArray(flattenResults(item.results), item.testCount, ["Key", "Left", "Right", "Match"]);
+          let keyHeader = (item.isPiiRisk) ? "Key PII RISK" : "Key";
+          let table = buildTableFromArray(flattenResults(item.results), item.testCount, [keyHeader, "Left", "Right", "Match"]);
           document.body.appendChild(table);
 
           res.appendChild(table);
