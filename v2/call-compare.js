@@ -49,7 +49,7 @@
     // email
     if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(val)) return 'email';
     // phone (simple)
-    if (/^(?:\+?\d[\d\-() ]{7,}\d)$/.test(val)) return 'phone';
+    // if (/^(?:\+?\d[\d\-() ]{7,}\d)$/.test(val)) return 'phone';
     // ssn-ish
     if (/^(\d{3}[- ]?\d{2}[- ]?\d{4})$/.test(val)) return 'ssn';
     // check for potential pii based on key name
