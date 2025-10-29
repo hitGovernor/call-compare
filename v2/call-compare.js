@@ -90,16 +90,16 @@
       }
       if (u) {
         var map = {};
-        map['__full_url__'] = q;
+        // map['__full_url__'] = q;
         map['protocol'] = u.protocol ? u.protocol.replace(':','') : '';
         map['hostname'] = u.hostname || '';
-        map['port'] = u.port || '';
+        if(u.port) { map['port'] = u.port || ''; }
         map['pathname'] = u.pathname || '';
-        map['hash'] = u.hash ? u.hash.replace('#','') : '';
+        if(u.hash) { map['hash'] = u.hash ? u.hash.replace('#','') : ''; }
         map['origin'] = (u.origin && u.origin !== 'null') ? u.origin : (u.protocol + '//' + u.hostname);
-        // path segments
-        var segs = (u.pathname || '').split('/').filter(function(s){ return s.length > 0; });
-        for (var si = 0; si < segs.length; si++) { map['path.' + si] = segs[si]; }
+        // // path segments
+        // var segs = (u.pathname || '').split('/').filter(function(s){ return s.length > 0; });
+        // for (var si = 0; si < segs.length; si++) { map['path.' + si] = segs[si]; }
         // query params
         if (u.search) {
           // use URLSearchParams when available
