@@ -10,7 +10,7 @@ header .hint { margin: 0 0 18px 0; color: #6b7280; font-size: .95rem; }
 .legend { display:flex; gap:8px; align-items:center; }
 .legend label { display:flex; align-items:center; gap:6px; font-size:.85rem; color:#374151; }
 .sub-links { margin-top:10px; display:flex; gap:12px; justify-content:flex-end; }
-.sub-links a { color:#2563eb; text-decoration:underline; font-size:.95rem; }
+.sub-links a { color:#2563eb; text-decoration:underline; font-size:.75rem; }
 .textareas { display:flex; gap:12px; }
 .textareas textarea { width:50%; min-height:160px; padding:10px; border:1px solid #e5e7eb; border-radius:6px; resize:vertical; font-family: monospace; font-size:.9rem; }
 .actions { display:flex; gap:8px; justify-content:flex-end; margin-top:12px; }

@@ -52,8 +52,10 @@
     if(/^(?:\+?\d[\d\-() ]{7,}\d)$/.test(val)) return 'phone';
     // ssn-ish
     if(/^(\d{3}[- ]?\d{2}[- ]?\d{4})$/.test(val)) return 'ssn';
+    // check for potential pii based on key name
     if(/name|first_name|last_name|email|phone|ssn|dob|birth/.test(keyLower)) return 'key suggests PII';
-    if(/^[A-Za-z0-9_-]{20,}\.?[A-Za-z0-9_-]*$/.test(val)) return 'token-like';
+    // check for text that looks like a token
+    // if(/^[A-Za-z0-9_-]{20,}\.?[A-Za-z0-9_-]*$/.test(val)) return 'token-like';
     return false;
   }
 
