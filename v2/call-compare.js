@@ -194,11 +194,15 @@
       var leftText = document.getElementById('left-calls').value || '';
       var rightText = document.getElementById('right-calls').value || '';
       if(!leftText.trim()){
-        var err = document.createElement('div'); err.textContent = 'You must provide LEFT text for comparison'; err.style.color = '#b91c1c'; res.appendChild(err); return;
+        var err = document.createElement('div'); err.textContent = 'You must provide LEFT text for comparison'; err.style.color = '#b91c1c'; res.appendChild(err);
+        // hide download link
+        document.getElementById('download-csv').style.display = 'none';
+        return;
       }
       var customDelimiter = document.getElementById('custom-delimiter').value || null;
       var leftLines = leftText.split('\n');
       var rightLines = rightText ? rightText.split('\n') : leftText.split('\n');
+      var anyTable = false;
       for(var i=0;i<leftLines.length;i++){
         if(!leftLines[i]) continue;
         var leftLine = leftLines[i];
@@ -206,26 +210,27 @@
         var pair = comparePair({ left: leftLine, right: rightLine, customDelimiter: customDelimiter });
         var rows = flattenResultsWrapper(pair);
         if(rows.length === 0) continue;
+        anyTable = true;
         var table = buildTableFromArray(rows, i, ['Key','Left','Right','Match']);
-        // add a header about PII if detected
         var heading = document.createElement('div'); heading.className = 'table-heading'; heading.textContent = 'Comparison ' + (i+1) + (pair.piiDetected ? '' : '');
         if(pair.piiDetected){ var warn = document.createElement('span'); warn.className = 'pii-warning'; warn.textContent = 'PII Detected'; heading.appendChild(warn); }
-        // extra space before table
         res.appendChild(document.createElement('br'));
         res.appendChild(heading);
         res.appendChild(table);
       }
+      // show or hide download link
+      document.getElementById('download-csv').style.display = anyTable ? '' : 'none';
     });
 
-    document.getElementById('form-reset').addEventListener('click', function(){ res.innerHTML = ''; });
+    document.getElementById('form-reset').addEventListener('click', function(){ res.innerHTML = ''; document.getElementById('download-csv').style.display = 'none'; });
 
-    document.getElementById('compare-samples').addEventListener('click', function(){
+    document.getElementById('compare-samples').addEventListener('click', function(e){ e.preventDefault();
       document.getElementById('left-calls').value = '{"user": {"id": 123, "name": "Alice", "email": "alice@example.com"}, "items": ["a","b"]}\nhttps://example.com?a=1&b=hello%20there';
       document.getElementById('right-calls').value = '{"user": {"id": 123, "name": "Alice Smith"}, "items": ["a","c"]}\nhttps://example.com?a=1&b=goodbye';
       form.requestSubmit();
     });
 
-    document.getElementById('download-csv').addEventListener('click', function(){
+    document.getElementById('download-csv').addEventListener('click', function(e){ e.preventDefault();
       // gather all visible tables
       var tables = document.querySelectorAll('table.result-table');
       if(!tables || tables.length === 0) { alert('No results to download'); return; }

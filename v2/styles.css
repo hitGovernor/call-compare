@@ -8,7 +8,9 @@ header .hint { margin: 0 0 18px 0; color: #6b7280; font-size: .95rem; }
 .controls { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px; }
 .controls .small { font-size: .85rem; color: #374151; }
 .legend { display:flex; gap:8px; align-items:center; }
-.legend label { font-size:.85rem; color:#374151; }
+.legend label { display:flex; align-items:center; gap:6px; font-size:.85rem; color:#374151; }
+.sub-links { margin-top:10px; display:flex; gap:12px; }
+.sub-links a { color:#2563eb; text-decoration:underline; font-size:.95rem; }
 .textareas { display:flex; gap:12px; }
 .textareas textarea { width:50%; min-height:160px; padding:10px; border:1px solid #e5e7eb; border-radius:6px; resize:vertical; font-family: monospace; font-size:.9rem; }
 .actions { display:flex; gap:8px; justify-content:flex-end; margin-top:12px; }
@@ -28,7 +30,7 @@ header .hint { margin: 0 0 18px 0; color: #6b7280; font-size: .95rem; }
 .legend-row-exists td { background:#fff7ed; }
 .legend-row-left-only td { background:#fff1f2; }
 .legend-row-right-only td { background:#eef2ff; }
-.legend-row-pii td { outline: 2px solid rgba(255,160,0,0.12); }
+.legend-row-pii td { outline: none; }
 
 /* result table improvements */
 .result-table td.pii { position:relative; }
@@ -48,7 +50,7 @@ header .hint { margin: 0 0 18px 0; color: #6b7280; font-size: .95rem; }
 .result-table { width:100%; border-collapse:collapse; margin-top:22px; table-layout: fixed; }
 
 /* PII flag on offending rows */
-.pii-flag { display:inline-block; margin-left:8px; background:#ffedd5; color:#92400e; padding:2px 6px; border-radius:4px; font-size:.75rem; cursor:help; position:relative; }
+.pii-flag { display:inline-block; margin-left:8px; background:#ffedd5; color:#92400e; padding:2px 6px; border-radius:4px; font-size:.8rem; margin-left:6px; }
 .pii-flag::after { content: attr(data-reason); position:absolute; left:0; top:110%; background:#111827; color:#fff; padding:8px 10px; border-radius:6px; white-space:normal; max-width:360px; z-index:20; box-shadow: 0 8px 24px rgba(0,0,0,0.2); opacity:0; transform:translateY(6px); pointer-events:none; transition:opacity .12s ease, transform .12s ease; }
 .pii-flag:hover::after { opacity:1; transform:translateY(0); pointer-events:auto; }
 
