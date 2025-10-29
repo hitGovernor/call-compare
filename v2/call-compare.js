@@ -78,12 +78,58 @@
       }
     }
 
-    // if URL, take part after first ?
-    var qidx = q.indexOf('?');
-    if(qidx !== -1) q = q.slice(qidx + 1);
+    // Try to parse as a full URL using URL constructor. If not available or fails, fall back to param parsing.
+    try {
+      var u = null;
+      // If the string looks like a URL (contains :// or starts with //), try URL
+      if (/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(q) || /^\/\//.test(q) || q.indexOf('://') !== -1) {
+        try { u = new URL(q); } catch (err) {
+          // If q is relative (no origin), try to prepend a dummy origin
+          try { u = new URL(q, 'http://example.com'); } catch (err2) { u = null; }
+        }
+      }
+      if (u) {
+        var map = {};
+        map['__full_url__'] = q;
+        map['protocol'] = u.protocol ? u.protocol.replace(':','') : '';
+        map['hostname'] = u.hostname || '';
+        map['port'] = u.port || '';
+        map['pathname'] = u.pathname || '';
+        map['hash'] = u.hash ? u.hash.replace('#','') : '';
+        map['origin'] = (u.origin && u.origin !== 'null') ? u.origin : (u.protocol + '//' + u.hostname);
+        // path segments
+        var segs = (u.pathname || '').split('/').filter(function(s){ return s.length > 0; });
+        for (var si = 0; si < segs.length; si++) { map['path.' + si] = segs[si]; }
+        // query params
+        if (u.search) {
+          // use URLSearchParams when available
+          try {
+            var sp = new URLSearchParams(u.search);
+            sp.forEach(function(v,k){ if(!map[k]) map[k] = []; map[k].push(v); });
+          } catch (e) {
+            // fallback parse
+            var qstr = u.search.replace(/^\?/, '');
+            var parts2 = qstr.split('&');
+            for (var p2 = 0; p2 < parts2.length; p2++){
+              var prt = parts2[p2]; if(!prt) continue;
+              var eq = prt.indexOf('='); var kk, vv;
+              if(eq === -1){ kk = prt; vv = ''; } else { kk = prt.slice(0, eq); vv = prt.slice(eq+1); }
+              kk = safeDecode(kk).trim(); vv = safeDecode(vv).trim(); if(!map[kk]) map[kk]=[]; map[kk].push(vv);
+            }
+          }
+        }
+        // flatten arrays
+        var out = {};
+        for(var k in map){ if(map.hasOwnProperty(k)) out[k] = Array.isArray(map[k]) ? map[k].join(' | ') : map[k]; }
+        return out;
+      }
+    } catch(e) {
+      // ignore and fall back
+    }
+
+    // fallback: treat text as param string
     // strip fragment
     var fidx = q.indexOf('#'); if(fidx !== -1) q = q.slice(0, fidx);
-
     // normalize separators: newline, semicolon, ampersand
     q = q.replace(/\r?\n/g, '&').replace(/;/g, '&');
     if(customDelimiter){
@@ -105,9 +151,9 @@
       if(!map.hasOwnProperty(key)) map[key] = [];
       map[key].push(val);
     }
-    var out = {};
-    for(var k in map){ if(map.hasOwnProperty(k)) out[k] = map[k].join(' | '); }
-    return out;
+    var out2 = {};
+    for(var kk in map){ if(map.hasOwnProperty(kk)) out2[kk] = map[kk].join(' | '); }
+    return out2;
   }
 
   function comparePair(options){
