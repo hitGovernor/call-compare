@@ -16,7 +16,7 @@ header .hint { margin: 0 0 18px 0; color: #6b7280; font-size: .95rem; }
 .actions button[type="reset"] { background:#ef4444; }
 .actions button#compare-samples { background:#3b82f6; }
 .results { margin-top:18px; }
-.result-table { width:100%; border-collapse:collapse; margin-top:20px; table-layout: fixed; }
+.result-table { width:100%; border-collapse:collapse; margin-top:22px; table-layout: fixed; }
 .result-table th, .result-table td { padding:8px; border-bottom:1px solid #eef2f7; vertical-align: top; }
 .result-table th { background:#f8fafc; text-align:left; }
 .result-table td { word-wrap:break-word; }
@@ -38,7 +38,21 @@ header .hint { margin: 0 0 18px 0; color: #6b7280; font-size: .95rem; }
 .result-table td.pii.left-only { background:#fff1f2; }
 .result-table td.pii.right-only { background:#eef2ff; }
 
-/* table heading and PII warning */
+/* Legend swatches - darker, more accessible */
+.legend-swatch.exact { background:#a7f3eb; border:1px solid #065f46 }
+.legend-swatch.exists { background:#fff4d6; border:1px solid #92400e }
+.legend-swatch.left-only { background:#fecaca; border:1px solid #7f1d1d }
+.legend-swatch.right-only { background:#bae6fd; border:1px solid #075985 }
+
+/* extra space before each table */
+.result-table { width:100%; border-collapse:collapse; margin-top:22px; table-layout: fixed; }
+
+/* PII flag on offending rows */
+.pii-flag { display:inline-block; margin-left:8px; background:#ffedd5; color:#92400e; padding:2px 6px; border-radius:4px; font-size:.75rem; cursor:help; position:relative; }
+.pii-flag::after { content: attr(data-reason); position:absolute; left:0; top:110%; background:#111827; color:#fff; padding:8px 10px; border-radius:6px; white-space:normal; max-width:360px; z-index:20; box-shadow: 0 8px 24px rgba(0,0,0,0.2); opacity:0; transform:translateY(6px); pointer-events:none; transition:opacity .12s ease, transform .12s ease; }
+.pii-flag:hover::after { opacity:1; transform:translateY(0); pointer-events:auto; }
+
+/* table heading and PII warning (heading kept simple) */
 .table-heading { font-weight:600; margin-top:12px; margin-bottom:6px; }
 .pii-warning { display:inline-block; margin-left:12px; background:#ffedd5; color:#9a3412; padding:4px 8px; border-radius:6px; font-weight:700; }
 

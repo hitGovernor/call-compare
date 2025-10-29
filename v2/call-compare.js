@@ -43,20 +43,17 @@
   }
 
   function detectPIIValue(key, value){
-    // basic heuristics
     if(!value) return false;
     var val = String(value).trim();
     var keyLower = String(key).toLowerCase();
     // email
-    if(/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(val)) return true;
+    if(/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(val)) return 'email';
     // phone (simple)
-    if(/^(?:\+?\d[\d\-() ]{7,}\d)$/.test(val)) return true;
+    if(/^(?:\+?\d[\d\-() ]{7,}\d)$/.test(val)) return 'phone';
     // ssn-ish
-    if(/^(\d{3}[- ]?\d{2}[- ]?\d{4})$/.test(val)) return true;
-    // probable name or email by key
-    if(/name|first_name|last_name|email|phone|ssn|dob|birth/.test(keyLower)) return true;
-    // long base64-looking (likely token) or jwt
-    if(/^[A-Za-z0-9_-]{20,}\.?[A-Za-z0-9_-]*$/.test(val)) return true;
+    if(/^(\d{3}[- ]?\d{2}[- ]?\d{4})$/.test(val)) return 'ssn';
+    if(/name|first_name|last_name|email|phone|ssn|dob|birth/.test(keyLower)) return 'key suggests PII';
+    if(/^[A-Za-z0-9_-]{20,}\.?[A-Za-z0-9_-]*$/.test(val)) return 'token-like';
     return false;
   }
 
@@ -134,8 +131,9 @@
         if(l === r) status = 'exact'; else status = 'exists';
       } else if(l !== '' && r === ''){ status = 'left-only'; }
       else if(l === '' && r !== ''){ status = 'right-only'; }
-      var pii = detectPIIValue(key, l) || detectPIIValue(key, r);
-      results.push({ key: key, left: l, right: r, match: status, pii: pii });
+      var piiReason = detectPIIValue(key, l) || detectPIIValue(key, r) || false;
+      var pii = !!piiReason;
+      results.push({ key: key, left: l, right: r, match: status, pii: pii, piiReason: piiReason });
     }
 
     // Determine if any row contains potential PII
@@ -165,6 +163,7 @@
       if(r.pii) tr.className = 'legend-row-pii'; else tr.className = '';
       tr.className += ' legend-row-' + (r.match || 'exists');
       var tdKey = document.createElement('td'); tdKey.className = 'key'; tdKey.textContent = r.key || '';
+      if(r.pii){ var f = document.createElement('span'); f.className = 'pii-flag'; f.setAttribute('data-reason', r.piiReason); f.textContent = '⚠'; tdKey.appendChild(f); }
       var tdLeft = document.createElement('td'); tdLeft.className = 'left'; tdLeft.textContent = r.left || '';
       var tdRight = document.createElement('td'); tdRight.className = 'right'; tdRight.textContent = r.right || '';
       var tdMatch = document.createElement('td'); tdMatch.className = 'match'; tdMatch.textContent = r.match || '';
@@ -221,9 +220,34 @@
     document.getElementById('form-reset').addEventListener('click', function(){ res.innerHTML = ''; });
 
     document.getElementById('compare-samples').addEventListener('click', function(){
-      document.getElementById('left-calls').value = '{"user": {"id": 123, "name": "Alice"}, "items": ["a","b"]}\nhttps://example.com?a=1&b=hello%20there';
+      document.getElementById('left-calls').value = '{"user": {"id": 123, "name": "Alice", "email": "alice@example.com"}, "items": ["a","b"]}\nhttps://example.com?a=1&b=hello%20there';
       document.getElementById('right-calls').value = '{"user": {"id": 123, "name": "Alice Smith"}, "items": ["a","c"]}\nhttps://example.com?a=1&b=goodbye';
       form.requestSubmit();
+    });
+
+    document.getElementById('download-csv').addEventListener('click', function(){
+      // gather all visible tables
+      var tables = document.querySelectorAll('table.result-table');
+      if(!tables || tables.length === 0) { alert('No results to download'); return; }
+      var rowsOut = [['comparison_index','key','left','right','match','pii_reason']];
+      for(var t=0;t<tables.length;t++){
+        var idx = t+1;
+        var trs = tables[t].querySelectorAll('tbody tr');
+        for(var tr=0; tr<trs.length; tr++){
+          var cols = trs[tr].querySelectorAll('td');
+          var key = cols[0] ? cols[0].textContent.trim() : '';
+          var left = cols[1] ? cols[1].textContent.trim() : '';
+          var right = cols[2] ? cols[2].textContent.trim() : '';
+          var match = cols[3] ? cols[3].textContent.trim() : '';
+          var piiElem = cols[0] ? cols[0].querySelector('.pii-flag') : null;
+          var piiReason = piiElem ? piiElem.getAttribute('data-reason') : '';
+          rowsOut.push([String(idx), key, left, right, match, piiReason]);
+        }
+      }
+      var csv = rowsOut.map(function(r){ return r.map(function(c){ if(c === null || typeof c === 'undefined') return ''; return '"'+String(c).replace(/"/g,'""')+'"'; }).join(','); }).join('\n');
+      var blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a'); a.href = url; a.download = 'call-compare-results.csv'; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(url); try{ document.body.removeChild(a);}catch(e){ } }, 5000);
     });
 
   });
