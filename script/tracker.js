@@ -1,8 +1,8 @@
-
+/* Lightweight tracker shim */
 window.dataLayer = window.dataLayer || [];
-let tracker = {
-  push: function (event) {
-    console.log(event);
-    dataLayer.push(event);
+window.tracker = window.tracker || {
+  push: function(obj) {
+    try { window.dataLayer.push(obj); } catch (e) { /* ignore */ }
+    try { console.log('tracker.push', obj); } catch (e) { /* ignore */ }
   }
-}
+};
