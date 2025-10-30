@@ -193,7 +193,8 @@
       if (results[ri].pii) { piiDetected = true; break; }
     }
 
-    return { results: results, testCount: 0, piiDetected: piiDetected };
+    tracker.push({ event: 'pair-comparison', 'testCount': allKeys.length, 'piiDetected': piiDetected });
+    return { results: results, testCount: allKeys.length, piiDetected: piiDetected };
   }
 
   function flattenResultsWrapper(results) {
@@ -279,6 +280,7 @@
       e.preventDefault();
       document.getElementById('left-calls').value = '{"user": {"id": 123, "name": "Alice", "email": "alice@example.com"}, "items": ["a","b"]}\nhttps://example.com?a=1&b=hello%20there';
       document.getElementById('right-calls').value = '{"user": {"id": 123, "name": "Alice Smith"}, "items": ["a","c"]}\nhttps://example.com?a=1&b=goodbye';
+      tracker.push({ event: 'compare-samples' });
       form.requestSubmit();
     });
 
