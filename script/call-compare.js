@@ -280,8 +280,8 @@
       e.preventDefault();
       document.getElementById('left-calls').value = '{"user": {"id": 123, "name": "Alice", "email": "alice@example.com"}, "items": ["a","b"]}\nhttps://example.com?a=1&b=hello%20there';
       document.getElementById('right-calls').value = '{"user": {"id": 123, "name": "Alice Smith"}, "items": ["a","c"]}\nhttps://example.com?a=1&b=goodbye';
-      form.requestSubmit();
       tracker.push({ event: 'compare-samples' });
+      form.requestSubmit();
     });
 
     document.getElementById('download-csv').addEventListener('click', function (e) {
