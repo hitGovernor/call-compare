@@ -251,7 +251,7 @@
         document.getElementById('download-csv').style.display = 'none';
         return;
       }
-      var customDelimiter = document.getElementById('custom-delimiter').value || null;
+      var customDelimiter = document.getElementById('custom-delimiter')?.value || null; 
       var leftLines = leftText.split('\n');
       var rightLines = rightText ? rightText.split('\n') : leftText.split('\n');
       var anyTable = false;
