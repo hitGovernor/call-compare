@@ -120,6 +120,29 @@
             }
           }
         }
+        // path parsing — respect customDelimiter: if provided and present, split path by delimiter into tokens and parse key=value; otherwise split on '/'
+        var pathRaw = (u.pathname || '').replace(/^\/+/, '');
+        if (customDelimiter && pathRaw.indexOf(customDelimiter) !== -1) {
+          var pathParts = pathRaw.split(customDelimiter);
+          var pathIndex = 0;
+          for (var pi = 0; pi < pathParts.length; pi++) {
+            var part = pathParts[pi];
+            if (!part) continue;
+            var eqi = part.indexOf('=');
+            if (eqi === -1) {
+              map['path.' + pathIndex] = safeDecode(part);
+              pathIndex++;
+            } else {
+              var pk = safeDecode(part.slice(0, eqi)).trim();
+              var pv = safeDecode(part.slice(eqi + 1)).trim();
+              if (!map[pk]) map[pk] = [];
+              map[pk].push(pv);
+            }
+          }
+        } else {
+          var segs = (u.pathname || '').split('/').filter(function(s){ return s.length > 0; });
+          for (var si = 0; si < segs.length; si++) { map['path.' + si] = safeDecode(segs[si]); }
+        }
         // flatten arrays
         var out = {};
         for (var k in map) { if (map.hasOwnProperty(k)) out[k] = Array.isArray(map[k]) ? map[k].join(' | ') : map[k]; }
