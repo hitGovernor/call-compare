@@ -132,7 +132,7 @@
     // fallback: treat text as param string
     // strip fragment
     var fidx = q.indexOf('#'); if (fidx !== -1) q = q.slice(0, fidx);
-    // normalize separators: newline, semicolon, ampersand
+    // normalize separators: newline, semicolon, ampersandx
     q = q.replace(/\r?\n/g, '&').replace(/;/g, '&');
     if (customDelimiter) {
       var esc = String(customDelimiter).replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
