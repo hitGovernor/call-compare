@@ -61,4 +61,10 @@ header .hint { margin: 0 0 18px 0; color: #6b7280; font-size: .95rem; }
 /* PII badge */
 .pii-badge { display:inline-block; padding:2px 6px; background:#ffd9a6; color:#92400e; border-radius:4px; font-size:.8rem; margin-left:6px; }
 
+/* info icon and tooltip */
+.info-icon { display:inline-block; margin-left:8px; width:18px; height:18px; line-height:18px; text-align:center; border-radius:50%; background:#e5e7eb; color:#0f172a; font-weight:700; cursor:help; position:relative; }
+.info-icon:focus { outline:2px solid #2563eb; }
+.info-icon::after { content: attr(data-tooltip); position:absolute; left:50%; transform:translateX(-50%) translateY(8px); top:100%; background:#111827; color:#fff; padding:8px 10px; border-radius:6px; white-space:normal; width:260px; max-width:320px; z-index:9999; box-shadow:0 8px 20px rgba(0,0,0,0.2); opacity:0; pointer-events:none; transition:opacity .12s ease, transform .12s ease; font-size:0.9rem; }
+.info-icon:hover::after, .info-icon:focus::after { opacity:1; transform:translateX(-50%) translateY(0); pointer-events:auto; }
+
 @media (max-width:720px){ .textareas { flex-direction:column } .textareas textarea{ width:100% } }
