@@ -67,4 +67,26 @@ header .hint { margin: 0 0 18px 0; color: #6b7280; font-size: .95rem; }
 .info-icon::after { content: attr(data-tooltip); position:absolute; left:50%; transform:translateX(-50%) translateY(8px); top:100%; background:#111827; color:#fff; padding:8px 10px; border-radius:6px; white-space:normal; width:260px; max-width:320px; z-index:9999; box-shadow:0 8px 20px rgba(0,0,0,0.2); opacity:0; pointer-events:none; transition:opacity .12s ease, transform .12s ease; font-size:0.9rem; }
 .info-icon:hover::after, .info-icon:focus::after { opacity:1; transform:translateX(-50%) translateY(0); pointer-events:auto; }
 
+/* muted links */
+.muted-link { color:#6b7280; margin-left:12px; font-size:.95rem; text-decoration:underline; }
+
+/* Modal styles */
+.modal { position:fixed; left:0; top:0; right:0; bottom:0; background:rgba(2,6,23,0.5); display:none; align-items:center; justify-content:center; z-index:2000; }
+.modal[aria-hidden="false"] { display:flex; }
+.modal-content { background:#fff; border-radius:8px; padding:16px; width:640px; max-width:92%; box-shadow:0 12px 40px rgba(2,6,23,0.2); }
+.modal-content header { display:flex; justify-content:space-between; align-items:center; }
+.modal-content header h2{ margin:0; font-size:1.1rem; }
+.modal-close{ background:transparent; border:none; font-size:1.2rem; cursor:pointer; }
+.modal-body { margin-top:12px; }
+.save-actions { margin-top:8px; display:flex; gap:8px; justify-content:flex-end; }
+.save-actions button { padding:8px 12px; border-radius:6px; border:none; background:#0ea5a4; color:#fff; }
+.save-actions button#save-cancel { background:#ef4444; }
+.saved-list { margin-top:12px; }
+.saved-item { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #eef2f7; }
+.saved-item .meta { color:#374151; }
+.saved-item .meta .name { font-weight:600; }
+.saved-item .meta .date { font-size:0.85rem; font-style:italic; color:#6b7280; margin-top:4px; }
+.saved-item .controls { display:flex; gap:8px; }
+.saved-item .controls button { background:#fff; border:1px solid #e5e7eb; padding:6px 8px; border-radius:6px; cursor:pointer; }
+
 @media (max-width:720px){ .textareas { flex-direction:column } .textareas textarea{ width:100% } }
