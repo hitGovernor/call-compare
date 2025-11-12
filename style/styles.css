@@ -68,7 +68,7 @@ header .hint { margin: 0 0 18px 0; color: #6b7280; font-size: .95rem; }
 .info-icon:hover::after, .info-icon:focus::after { opacity:1; transform:translateX(-50%) translateY(0); pointer-events:auto; }
 
 /* muted links */
-.muted-link { color:#6b7280; margin-left:12px; font-size:.95rem; text-decoration:underline; }
+.muted-link { color:#6b7280; margin-left:8px; font-size:.95rem; text-decoration:underline; }
 
 /* Modal styles */
 .modal { position:fixed; left:0; top:0; right:0; bottom:0; background:rgba(2,6,23,0.5); display:none; align-items:center; justify-content:center; z-index:2000; }
@@ -78,9 +78,18 @@ header .hint { margin: 0 0 18px 0; color: #6b7280; font-size: .95rem; }
 .modal-content header h2{ margin:0; font-size:1.1rem; }
 .modal-close{ background:transparent; border:none; font-size:1.2rem; cursor:pointer; }
 .modal-body { margin-top:12px; }
+.modal-subtitle { color:#6b7280; margin-top:6px; margin-bottom:6px; font-size:0.85rem; }
+
+/* Align Save link with action buttons and match sub-links style */
+.actions .muted-link { margin-right:8px; display:inline-flex; align-items:center; color:#6b7280; text-decoration:underline; font-size:.95rem; }
+
 .save-actions { margin-top:8px; display:flex; gap:8px; justify-content:flex-end; }
 .save-actions button { padding:8px 12px; border-radius:6px; border:none; background:#0ea5a4; color:#fff; }
 .save-actions button#save-cancel { background:#ef4444; }
+/* place label/input and buttons on same row */
+.save-row { display:flex; gap:12px; align-items:center; }
+.save-row label { flex: 1 1 60%; }
+.save-row input#save-name { width: 100%; }
 .saved-list { margin-top:12px; }
 .saved-item { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #eef2f7; }
 .saved-item .meta { color:#374151; }

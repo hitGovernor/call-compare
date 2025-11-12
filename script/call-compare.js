@@ -309,13 +309,13 @@
     saveCancel.addEventListener('click', function(){ closeSavedModal(); });
 
     saveConfirm.addEventListener('click', function(){
-      var name = (saveName.value || '').trim(); if(!name){ alert('Please provide a name to save.'); return; }
+      var name = (saveName.value || '').trim(); if(!name){ alert('Please provide a comparison name to save.'); return; }
       var left = document.getElementById('left-calls').value || '';
       var right = document.getElementById('right-calls').value || '';
       var list = loadSaved() || [];
       // enforce max 5 items: prompt user to replace oldest or cancel
       if(list.length >= 5){
-        var confirmReplace = confirm('You have reached the 5 saved comparisons limit. Replace the oldest saved comparison with this one? Click OK to replace, Cancel to abort.');
+        var confirmReplace = confirm('You have reached the 5 saved comparisons limit. Replace the oldest saved comparison with this comparison? Click OK to replace, Cancel to abort.');
         if(!confirmReplace){ return; }
         // analytics: replace oldest
         try{ tracker.push({ event: 'replace_oldest_saved_comparison', name: name }); }catch(e){}
