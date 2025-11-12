@@ -249,17 +249,82 @@
     return table;
   }
 
-  document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('DOMContentLoaded', function(){
     var form = document.getElementById('compare-form');
     var res = document.getElementById('results');
-    var legendCheckboxes = document.querySelectorAll('.legend input[type="checkbox"]');
-    Array.prototype.forEach.call(legendCheckboxes, function (cb) {
-      cb.addEventListener('change', function (e) {
-        var cls = 'legend-row-' + cb.getAttribute('data-legend');
-        var rows = document.querySelectorAll('table.result-table tr.' + cls);
-        Array.prototype.forEach.call(rows, function (r) { r.style.display = cb.checked ? '' : 'none'; });
-        tracker.push({ event: (cb.checked ? 'legend-show' : 'legend-hide'), legend_category: cb.getAttribute('data-legend') });
-      });
+    var saveLink = document.getElementById('save-current');
+    var manageLink = document.getElementById('manage-saved');
+    var savedModal = document.getElementById('saved-modal');
+    var savedModalClose = document.getElementById('saved-modal-close');
+    var saveForm = document.getElementById('save-form');
+    var saveName = document.getElementById('save-name');
+    var saveConfirm = document.getElementById('save-confirm');
+    var saveCancel = document.getElementById('save-cancel');
+    var savedList = document.getElementById('saved-list');
+    var STORAGE_KEY = 'call_compare_saved_v1';
+
+    function loadSaved(){
+      try{ var raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : []; } catch(e){ return []; }
+    }
+    function persistSaved(list){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); } catch(e){} }
+
+    function renderSavedList(){
+      var list = loadSaved();
+      savedList.innerHTML = '';
+      if(!list || !list.length){ savedList.textContent = 'No saved comparisons.'; return; }
+      list.forEach(function(item, idx){
+        var div = document.createElement('div'); div.className = 'saved-item';
+        var meta = document.createElement('div'); meta.className = 'meta';
+        var metaName = document.createElement('div'); metaName.className = 'name'; metaName.textContent = item.name;
+        var metaDate = document.createElement('div'); metaDate.className = 'date';
+        try{ metaDate.textContent = new Date(item.ts).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch(e){ metaDate.textContent = new Date(item.ts).toLocaleString(); }
+        meta.appendChild(metaName); meta.appendChild(metaDate);
+         var ctr = document.createElement('div'); ctr.className = 'controls';
+        var loadBtn = document.createElement('button'); loadBtn.textContent = 'Load'; loadBtn.addEventListener('click', function(){
+          document.getElementById('left-calls').value = item.left; document.getElementById('right-calls').value = item.right; savedModal.setAttribute('aria-hidden','true');
+          try{ tracker.push({ event: 'load_saved_comparison', name: item.name, index: idx }); }catch(e){}
+        });
+        var delBtn = document.createElement('button'); delBtn.textContent = 'Delete'; delBtn.addEventListener('click', function(){
+          var l = loadSaved();
+          l.splice(idx,1);
+          persistSaved(l);
+          renderSavedList();
+          try{ tracker.push({ event: 'delete_saved_comparison', name: item.name, index: idx }); }catch(e){}
+        });
+         ctr.appendChild(loadBtn); ctr.appendChild(delBtn);
+         div.appendChild(meta); div.appendChild(ctr);
+         savedList.appendChild(div);
+       });
+     }
+
+    function openSavedModal(){ savedModal.setAttribute('aria-hidden','false'); saveName.value = ''; renderSavedList(); saveName.focus();
+      // analytics: modal viewed
+      try{ tracker.push({ event: 'saved_modal_view' }); }catch(e){}
+    }
+    function closeSavedModal(){ savedModal.setAttribute('aria-hidden','true'); }
+
+    saveLink.addEventListener('click', function(e){ e.preventDefault(); openSavedModal(); });
+    manageLink.addEventListener('click', function(e){ e.preventDefault(); openSavedModal(); });
+    savedModalClose.addEventListener('click', function(){ closeSavedModal(); });
+    saveCancel.addEventListener('click', function(){ closeSavedModal(); });
+
+    saveConfirm.addEventListener('click', function(){
+      var name = (saveName.value || '').trim(); if(!name){ alert('Please provide a comparison name to save.'); return; }
+      var left = document.getElementById('left-calls').value || '';
+      var right = document.getElementById('right-calls').value || '';
+      var list = loadSaved() || [];
+      // enforce max 5 items: prompt user to replace oldest or cancel
+      if(list.length >= 5){
+        var confirmReplace = confirm('You have reached the 5 saved comparisons limit. Replace the oldest saved comparison with this comparison? Click OK to replace, Cancel to abort.');
+        if(!confirmReplace){ return; }
+        // analytics: replace oldest
+        try{ tracker.push({ event: 'replace_oldest_saved_comparison', name: name }); }catch(e){}
+        list.shift();
+      }
+      list.push({ name: name, left: left, right: right, ts: Date.now() });
+      persistSaved(list);
+      renderSavedList();
+      try{ tracker.push({ event: 'save_saved_comparison', name: name, total_saved: list.length }); }catch(e){}
     });
 
     form.addEventListener('submit', function (e) {
