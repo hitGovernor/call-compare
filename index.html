@@ -58,12 +58,14 @@
       </div>
 
       <div class="actions">
+        <a href="#" id="save-current" class="muted-link">Save</a>
         <button type="submit">Compare</button>
         <button type="reset" id="form-reset">Reset</button>
       </div>
       <div class="sub-links">
         <a href="#" id="compare-samples">Compare Sample URLs</a>
         <a href="#" id="download-csv" style="display:none">Download CSV</a>
+        <a href="#" id="manage-saved" class="muted-link">Manage Saved</a>
       </div>
     </form>
 
@@ -71,6 +73,34 @@
 
     <footer class="footer"></footer>
   </main>
-</body>
 
-</html>
+  <!-- Saved comparisons modal -->
+  <div id="saved-modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="saved-modal-title">
+    <div class="modal-content">
+      <header>
+        <h2 id="saved-modal-title">Saved Comparisons</h2>
+        <button id="saved-modal-close" class="modal-close" aria-label="Close">✕</button>
+      </header>
+      <div class="modal-body">
+        <p class="modal-subtitle">Save up to 5 comparisons for later reference.</p>
+        <form id="save-form">
+          <div class="save-row">
+            <label>Comparison Name:
+              <input type="text" id="save-name" maxlength="60" placeholder="Enter a name for this comparison">
+            </label>
+            <div class="save-actions">
+              <button type="button" id="save-confirm">Save</button>
+              <button type="button" id="save-cancel">Cancel</button>
+            </div>
+          </div>
+        </form>
+
+        <hr />
+        <div id="saved-list" class="saved-list" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+
+ </body>
+ 
+ </html>
