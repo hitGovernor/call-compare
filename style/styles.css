@@ -98,4 +98,10 @@ header .hint { margin: 0 0 18px 0; color: #6b7280; font-size: .95rem; }
 .saved-item .controls { display:flex; gap:8px; }
 .saved-item .controls button { background:#fff; border:1px solid #e5e7eb; padding:6px 8px; border-radius:6px; cursor:pointer; }
 
-@media (max-width:720px){ .textareas { flex-direction:column } .textareas textarea{ width:100% } }
+/* extra space before each table */
+.result-table { width:100%; border-collapse:collapse; margin-top:22px; table-layout: fixed; }
+
+/* footer consent styling */
+.footer .consent { text-align: right; margin-top: 8px; }
+.footer .consent label { color: #6b7280; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; }
+.footer .consent input[type="checkbox"] { transform: scale(0.95); }
