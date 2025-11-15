@@ -343,6 +343,7 @@
       var leftLines = leftText.split('\n');
       var rightLines = rightText ? rightText.split('\n') : leftText.split('\n');
       var anyTable = false;
+
       for (var i = 0; i < leftLines.length; i++) {
         if (!leftLines[i]) continue;
         var leftLine = leftLines[i];
@@ -363,6 +364,23 @@
     });
 
     document.getElementById('form-reset').addEventListener('click', function () { res.innerHTML = ''; document.getElementById('download-csv').style.display = 'none'; });
+
+    // analytics consent checkbox sync with localStorage key 'CONSENT'
+    try{
+      var analyticsToggle = document.getElementById('analytics-toggle');
+      if(analyticsToggle){
+        var consentRaw = localStorage.getItem('CONSENT');
+        if(consentRaw){
+          try{ var parsed = JSON.parse(consentRaw); if(typeof parsed.analytics !== 'undefined'){ analyticsToggle.checked = (Number(parsed.analytics) === 1); } }
+          catch(e){ /* ignore parse */ analyticsToggle.checked = true; }
+        } else {
+          // default to checked and create CONSENT
+          analyticsToggle.checked = true;
+          try{ localStorage.setItem('CONSENT', JSON.stringify({ analytics: 1 })); } catch(e){}
+        }
+        analyticsToggle.addEventListener('change', function(){ try{ var v = analyticsToggle.checked ? 1 : 0; localStorage.setItem('CONSENT', JSON.stringify({ analytics: v })); } catch(e){} });
+      }
+    }catch(e){}
 
     document.getElementById('compare-samples').addEventListener('click', function (e) {
       e.preventDefault();
