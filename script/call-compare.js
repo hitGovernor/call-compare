@@ -358,6 +358,10 @@
         res.appendChild(document.createElement('br'));
         res.appendChild(heading);
         res.appendChild(table);
+        // Re-apply legend filters for rows just added
+        try {
+          Array.prototype.forEach.call(legendCheckboxes, function (cb) { var key = cb.getAttribute('data-legend'); setLegendVisibility(key, cb.checked); });
+        } catch (e) { /* ignore */ }
       }
       // show or hide download link
       document.getElementById('download-csv').style.display = anyTable ? '' : 'none';
@@ -414,6 +418,30 @@
       var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       var url = URL.createObjectURL(blob);
       var a = document.createElement('a'); a.href = url; a.download = 'call-compare-results.csv'; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(url); try { document.body.removeChild(a); } catch (e) { } }, 5000);
+    });
+
+    var legendCheckboxes = document.querySelectorAll('.legend input[type="checkbox"]');
+
+    // Show/hide functions for legend checkboxes
+    function setLegendVisibility(key, visible) {
+      try {
+        var rows = document.querySelectorAll('table.result-table tbody tr.legend-row-' + key);
+        Array.prototype.forEach.call(rows, function (r) {
+          r.style.display = visible ? '' : 'none';
+        });
+      } catch (e) { /* ignore */ }
+    }
+
+    // Ensure all legend checkboxes default to checked and wire change handlers
+    Array.prototype.forEach.call(legendCheckboxes, function (cb) {
+      try {
+        cb.checked = true;
+        cb.addEventListener('change', function () {
+          var key = cb.getAttribute('data-legend');
+          setLegendVisibility(key, cb.checked);
+          try { tracker.push({ event: (cb.checked ? 'legend-show' : 'legend-hide'), legend_category: key }); } catch (e) { }
+        });
+      } catch (e) { /* ignore */ }
     });
 
   });
